@@ -1,0 +1,21 @@
+{
+  "gradient_checks": 120,
+  "max_gradient_relative_error": 9.643e-09,
+  "permutation_invariance": "passed",
+  "brb_encoder_interpolation": "passed",
+  "main_runs": 25,
+  "main_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "dataset_samples": 1797,
+  "seed_pairs": 50,
+  "notebook_syntax": "passed",
+  "single_seed_subset_run": "passed",
+  "word_pages": 11,
+  "word_visual_review": "all 11 pages inspected",
+  "original_authors_code": "not executed; independent educational NumPy implementation"
+}

@@ -1,0 +1,50 @@
+{
+  "data": "data\\digits_1797.npz",
+  "dataset_name": "UCI Digits (1797 images)",
+  "output": "results_verified_20261012",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "methods": [
+    "AE_KMeans",
+    "DEC",
+    "IDEC",
+    "DCN",
+    "IDEC_BRB"
+  ],
+  "clusters": 10,
+  "latent_dim": 10,
+  "pretrain_epochs": 120,
+  "cluster_epochs": 60,
+  "batch_size": 128,
+  "learning_rate": 0.001,
+  "gamma": 0.1,
+  "dcn_weight": 0.01,
+  "target_interval": 5,
+  "brb_interval": 20,
+  "brb_alpha": 0.8,
+  "limit": 0,
+  "n_samples": 1797,
+  "n_features": 64,
+  "protocol": "transductive clustering on all X; y is evaluation only",
+  "implementation": "educational NumPy; not an exact paper reproduction",
+  "architecture": [
+    64,
+    64,
+    32,
+    10,
+    32,
+    64,
+    64
+  ],
+  "n_init": 20,
+  "loss_scaling": "reconstruction averages N*D; KL and k-means distortion average N",
+  "sha256_data": "3460276fd9ea7f0dc75aa5e0720ad8c0f91055d41b6a9b0d82552d808c09fa30",
+  "sha256_training_X": "23a53393488b04f92efc45ebc92767e2dcfdf206ba37a928f497d261e42267d2",
+  "sha256_sample_indices": "67a20cc9a4089e17305c2563b9f49897c4fbe4cee8eaac614bccebe6aa3704b9",
+  "timing_definition": "standalone = pretrain + shared KMeans initialization + method fitting; excludes evaluation, plots and file writes"
+}

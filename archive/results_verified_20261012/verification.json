@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "runs_verified": 25,
+  "dataset_samples": 1797,
+  "same_training_data_all_methods": true,
+  "sha256_training_X": "23a53393488b04f92efc45ebc92767e2dcfdf206ba37a928f497d261e42267d2",
+  "metrics_recomputed_from_predictions": true,
+  "predictions_recomputed_from_saved_models": true,
+  "max_metric_error": 5.551115123125783e-17,
+  "seed_pairs_verified": 50,
+  "summary_and_sample_std_verified": true,
+  "brb_reset_schedule_verified": true,
+  "original_authors_code": "not executed; independent NumPy demonstration",
+  "reference_comparison": {
+    "matched_runs": 25,
+    "max_absolute_metric_difference": {
+      "acc": 0.0,
+      "nmi": 0.0,
+      "ari": 0.0
+    },
+    "note": "Library versions and CPU differ; timing accounting now includes initial KMeans."
+  }
+}

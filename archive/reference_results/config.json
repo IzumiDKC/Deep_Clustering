@@ -1,0 +1,46 @@
+{
+  "data": "/workspace/scratch/f98fabdb67f7/deliverables/Deep_Clustering_Demo/data/digits_1797.npz",
+  "output": "results",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "methods": [
+    "AE_KMeans",
+    "DEC",
+    "IDEC",
+    "DCN",
+    "IDEC_BRB"
+  ],
+  "clusters": 10,
+  "latent_dim": 10,
+  "pretrain_epochs": 120,
+  "cluster_epochs": 60,
+  "batch_size": 128,
+  "learning_rate": 0.001,
+  "gamma": 0.1,
+  "dcn_weight": 0.01,
+  "target_interval": 5,
+  "brb_interval": 20,
+  "brb_alpha": 0.8,
+  "limit": 0,
+  "n_samples": 1797,
+  "n_features": 64,
+  "protocol": "transductive clustering on all X; y is evaluation only",
+  "implementation": "educational NumPy; not an exact paper reproduction",
+  "architecture": [
+    64,
+    64,
+    32,
+    10,
+    32,
+    64,
+    64
+  ],
+  "n_init": 20,
+  "loss_scaling": "reconstruction averages N*D; KL and k-means distortion average N",
+  "sha256_data": "3460276fd9ea7f0dc75aa5e0720ad8c0f91055d41b6a9b0d82552d808c09fa30"
+}

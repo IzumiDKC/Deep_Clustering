@@ -1,0 +1,1803 @@
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+Ayoub Ghriss1
+ayoub.ghriss@colorado.edu
+Claire Monteleoni1,2
+cmontel@colorado.edu
+1Department of Computer Science, University of Colorado Boulder
+2 INRIA Paris
+Abstract
+We propose a novel approach for optimizing
+the graph ratio-cut by modeling the binary
+assignments as random variables. We provide
+an upper bound on the expected ratio-cut, as
+well as an unbiased estimate of its gradient,
+to learn the parameters of the assignment
+variables in an online setting. The cluster-
+ing resulting from our probabilistic approach
+(PRCut) outperforms the Rayleigh quotient
+relaxation of the combinatorial problem, its
+online learning extensions, and several widely
+used methods. We demonstrate that the PR-
+Cut clustering closely aligns with the similar-
+ity measure and can perform as well as a su-
+pervised classifier when label-based similari-
+ties are provided. This novel approach can
+leverage out-of-the-box self-supervised rep-
+resentations to achieve competitive perfor-
+mance and serve as an evaluation method for
+the quality of these representations.
+1 INTRODUCTION
+Unsupervised learning is based on the premise that la-
+bels are not necessary for the training process, particu-
+larly for clustering tasks where samples that are highly
+similar are grouped together. Various clustering algo-
+rithms (Ezugwu et al., 2022) have been proposed in
+the context of machine learning and data mining. The
+K-Means algorithm (Lloyd, 1957) and ratio-cut parti-
+tioning (Hagen & Kahng, 1991) were among the first
+approaches to address the clustering problem. These
+methods were further refined and extended beyond bi-
+nary partitioning and Euclidean distances, and they
+Proceedings of the 28 th International Conference on Artifi-
+cial Intelligence and Statistics (AISTATS) 2025, Mai Khao,
+Thailand. PMLR: Volume 258. Copyright 2025 by the au-
+thor(s).
+were even shown to be fundamentally equivalent in
+specific settings (Dhillon et al., 2004).
+The recent advances in generative models and self-
+supervised representation learning have produced
+powerful embeddings that capture the similarity be-
+tween the original data samples. This makes lever-
+aging these similarity measures to achieve effective
+clustering more relevant than ever, as it can serve as
+pseudo-labels for pre-training classifiers or eliminate
+the need for a decoder (Ji et al., 2021) in the train-
+ing of these generative models. Therefore, it is highly
+advantageous to develop a method that can transform
+the similarity information into clustering of equal qual-
+ity. An efficient extension of spectral clustering to
+stochastic gradient descent would facilitate the con-
+version of learned embeddings to cluster assignments
+without relying on the full dataset or large batches
+to accurately approximate the graph structure of the
+embedding space.
+Several clustering methods have been applied to data
+streams to provide weak signals for the pre-training of
+neural networks. Meanwhile, other approaches have
+been proposed to utilize deep learning specifically for
+clustering, particularly with autoencoders and gener-
+ative neural networks (Jiang et al., 2017). Gener-
+ally, these methods can be categorized into contrastive
+learning (Li et al., 2020), where samples are grouped
+based on pairwise distances in a large batch, or gen-
+erative models such as variational autoencoders that
+use a prior with an auxiliary variable as the cluster
+assignment. The former methods do not fully capture
+the global structure of the clusters, while the latter
+may suffer from overfitting the prior due to the com-
+plexity of the neural network, with limited options to
+prevent this without relying on labels. Spectral clus-
+tering avoids these issues by clustering the data based
+on global similarities between clusters rather than just
+pairs of samples.
+Spectral clustering has long resisted attempts to ex-
+tend it to parametric learning, primarily due to the
+challenge of handling the spectral decomposition of
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+large matrices. Since it is based on the spectral decom-
+position of the relaxed ratio-cut rather than the combi-
+natorial version, it requires the projection of the data
+into a principal eigenspace. A clustering algorithm is
+then applied to these projections, further making the
+final performance dependent on the chosen clustering
+algorithm.
+In this paper, we develop a novel method to optimize
+the ratio-cut without relying on the spectral decom-
+position of the Laplacian matrix by employing a prob-
+abilistic approach that treats the cluster assignment
+as random variables. Furthermore, we utilize neural
+networks to parameterize the assignment probabilities
+and address the clustering problem in an online man-
+ner using stochastic gradient descent. The result is
+an online learning algorithm that achieves a better
+ratio-cut objective than the memory-intensive spectral
+method applied to the full graph Laplacian. We also
+demonstrate that our approach achieves comparable
+performance to a supervised classifier when utilizing
+supervised similarity (i.e., two samples are considered
+similar if they share the same label). This showcases
+a high fidelity between the resulting clustering and
+the given similarity measure. The proposed algorithm
+can also serve as a drop-in replacement for any other
+clustering method used in the pre-training of text or
+speech transformers, which opens up several opportu-
+nities for enhancing the effectiveness of pre-training for
+downstream tasks.
+2 BACKGROUND
+In this section, we succinctly present the relevant el-
+ements related to the notion of graph ratio-cut. The
+curious reader may refer to von Luxburg (2007) for a
+more detailed account of spectral clustering and other
+types of graph cuts.
+Let G = ( V, E, K) be an undirected weighted graph
+where V
+def
+= {vi | 1 ≤ i ≤ n} ⊂Rp is the set of vertices,
+E ⊂ V × Vis the set of edges eij linking vertices vi
+and vj, and K : V × V →R+ is a symmetric non-
+negative kernel. Let W be the symmetric n × n ad-
+jacency matrix where Wij = K(vi, vj). The degree of
+the vertex vi is di = P
+j Wij, and the degree matrix
+D
+def
+= diag (d1, . . . , dn).
+Let k ≥ 2 and Ck = {Cℓ|1 ≤ ℓ ≤ k} a partitioning of
+the graph G into k disjoint clusters. We shall represent
+the subset Cℓ ⊂ Vusing the binary assignment vector
+1Cℓ ∈ {0, 1}n where 1Cℓ (i) = 1 if and only if vi ∈ Cℓ.
+The size of Cℓ is measured using its cardinality |Cℓ| =Pn
+i=1 1Cℓ (i), and we denote by f (ℓ) def
+= 1√
+|Cℓ|
+1Cℓ its
+ratio assignment when |Cℓ| > 0.
+The ratio-cut for Ck is defined as:
+RatioCut(Ck)
+def
+= 1
+2
+kX
+ℓ=1
+1
+|Cℓ|
+X
+i,j∈Cℓ×Cℓ
+Wij (1)
+= 1
+2
+kX
+ℓ=1
+1
+|Cℓ| 1⊤
+Cℓ W (1n − 1Cℓ ) , (2)
+where A denotes V\A, the complement of A in V.
+We define the unnormalized Laplacian matrix as
+Lun
+def
+= D − W , which can be used to express the
+ratio-cut of Ck as:
+RatioCut(Ck) = 1
+2 Tr
+
+F ⊤
+Ck LunFCk
+
+, (3)
+where FCk
+def
+=
+
+f (1), . . .f (k)
+∈ Rn×k is the ratio as-
+signments matrix.
+Since the clusters should be disjoint and different from
+the naive partitioning {V, ∅, . . . ,∅}, we can express
+these constraints as F ⊤
+:,ℓ1V ̸= 1 for all 1 ≤ ℓ ≤ k.
+The optimization of the ratio-cut is then equivalent to
+minimizing a Rayleigh quotient on {0, 1}n×k. Solv-
+ing eq. (4) on the set {0, 1}n is generally an NP-
+hard problem. The optimization is hence relaxed
+so that the unknown vectors are in the unit sphere
+S(n) =
+n
+x ∈ Rn, ∥x∥2 = 1
+o
+. The objective is then:
+minimize
+F
+Tr(F ⊤LF )
+subject to F ⊤F = Ik and F ⊤
+:,j1V ̸= 1
+(4)
+The minimization of the Rayleigh quotient under the
+outlined constraints yields the k smoothest eigenvec-
+tors of the Laplacian matrix (excluding the trivial first
+eigenvector 1V ). Vertices within the same cluster are
+anticipated to have similar projections onto the solu-
+tions of the relaxed problem. As we ascend the Lapla-
+cian spectrum, the projections onto the eigenvectors
+encapsulate more specific (higher frequency) features.
+Subsequently, the binary assignments are determined
+through k-means clustering (Ng et al., 2001) of the
+relaxed problem’s solution.
+In this paper, we introduce a novel approach to opti-
+mizing eq. (4) that circumvents the necessity for spec-
+tral decomposition of extensive matrices or kernels,
+thereby sidestepping the relaxation of the problem into
+Euclidean space. Rather, we propose to relax the prob-
+lem into an optimization over a simplex through the
+parameterization of the cluster assignment distribu-
+tion.
+Ayoub Ghriss, Claire Monteleoni
+3 RELATED WORK
+There have been many attempts to extend Spec-
+tral Clustering to streaming settings (Guha et al.,
+2000), infinitely countable datasets, or continuous in-
+put spaces. For instance, Yoo et al. (2016) proposed
+an extension to non-parametric Spectral Clustering for
+data streams, particularly when the kernel similarity
+is bilinear or can be approximated linearly. With the
+arrival of each new stream batch, a batch-based Singu-
+lar Value Decomposition (SVD) is used to embed the
+stream and realign a facility set consisting of anchor
+points. These anchor points are then utilized to run a
+batch K-means algorithm (Shindler & Wong, 2011) to
+cluster the new points.
+However, research on extending Spectral Clustering to
+the domain of parametric learning, where the opti-
+mization variable is a mapping of the input space to
+the eigenspace, is limited. This is primarily due to the
+sensitivity of the eigendecomposition (Alam & Bora,
+2005) and the proven difficulty of eigendecomposition
+in non-parametric settings when the similarity kernel
+takes specific forms (Mohan & Monteleoni, 2017).
+One of the early attempts in this direction was made in
+the context of Deep Reinforcement Learning (Kulka-
+rni et al., 2016), where the Markov Decision Process
+(MDP) is decomposed into sub-tasks that navigate the
+representation space (Machado et al., 2017a). These
+sub-tasks, also called options (Machado et al., 2017b),
+correspond to eigenvectors associated with the largest
+eigenvalues of the graph Laplacian, where the vertices
+represent elements of the state space and the similarity
+is the likelihood of the agent moving from one state to
+another. Extending such an approach to a clustering
+setting would require constructing an MDP for which
+the correspondence between eigenvectors and options
+holds.
+SpectralNets (Shaham et al., 2018) were perhaps the
+first attempt at explicitly training a neural network to
+approximate eigenvectors of the Laplacian for large-
+scale clustering. The learned mapping is a neural net-
+work Nθ : Rp → Rk, parameterized by θ, that maps
+the input vertices to their projection on the subspace
+spanned by the k-smoothest eigenvectors of the Lapla-
+cian. The network is constructed to ensure that the
+output features are approximately orthonormal:
+1
+n
+nX
+i=1
+Nθ(vi)⊤Nθ(vi) ≈ Ik
+We denote by ˆNθ the neural network without the
+last orthogonalization layer, which is based on the
+Cholesky decomposition of the estimated covariance
+matrix Σθ ∈ Rk×k:
+Σθ = 1
+n
+nX
+i=1
+ˆNθ(vi)
+⊤ ˆNθ(vi).
+SpectralNets approach is then based on the minimiza-
+tion of:
+Lspectral(θ)
+def
+=
+nX
+i,j=1
+Wij ∥Nθ(vi) − Nθ(vj)∥2 (5)
+The matrix Πθ ∈ Rk×k serves as the parametric coun-
+terpart of F ⊤LF derived from eq. (4). Training the
+neural network equates to an alternating optimiza-
+tion scheme, where one batch is utilized to estimate
+Σθ, while the other is employed to minimize the loss
+Lspectral(θ).
+During training, should the input exhibit noise, the
+SpectralNet’s output may converge to a constant map-
+ping, resulting in the spectral loss approaching zero.
+Consequently, this approach encounters numerical in-
+stability in high-dimensional data scenarios. One com-
+mon strategy to circumvent this involves offsetting the
+matrix Σθ by a scaled identity and establishing an ap-
+propriate stopping criterion. However, the resulting
+algorithm remains highly susceptible to input and sim-
+ilarity noise. This sensitivity becomes particularly evi-
+dent when benchmarked against non-parametric Spec-
+tral Clustering. SpectralNets achieve competitive per-
+formance only when the input consists of the code
+space from another well-performing pre-trained vari-
+ational encoder (Jiang et al., 2017).
+Spectral Inference Networks (Spin) (Pfau et al., 2020)
+adopt a distinct strategy for parametric optimization
+of the Rayleigh quotient. As defined previously, the
+loss function takes the form:
+Lspin(θ) = Tr
+ 
+Σθ
+−1Πθ
+
+While primarily utilized within the domain of Deep
+Reinforcement Learning, targeting the eigenfunctions
+associated with the largest eigenvalues, this approach
+can be adapted for loss minimization rather than max-
+imization.
+Upon differentiation (Petersen & Pedersen, 2012), the
+full gradient can be expressed as:
+Tr
+ 
+Σθ
+−1∇θΠθ
+
+− Tr
+ 
+Σθ
+−1(∇θΣθ)Σθ
+−1Πθ
+
+The Spin algorithm estimates Σθ and ∇θΣθ utilizing
+moving averages. It addresses the issue of overlap-
+ping eigenvectors by modifying the gradient to ensure
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+sequential independence in updates: the gradients of
+the first l eigenfunctions are made independent of gra-
+dients from other components l + 1, . . . , k. This alter-
+ation significantly slows down training, in addition to
+the computational burden of computing ∇θΣθ, which
+necessitates calculating k2 backward passes and stor-
+ing k2 × size(θ), thereby increasing memory and com-
+putational costs.
+We assert that the performance of these attempts is
+ultimately hindered by the difficulty of the eigende-
+composition of large kernels. Therefore, we take a dif-
+ferent approach to optimizing the graph ratio-cut that
+circumvents the spectral decomposition.
+4 PROPOSED METHOD
+In our probabilistic approach, the minimization of the
+ratio-cut is addressed differently. Instead of the deter-
+ministic assignments 1Cℓ , we use the random assign-
+ment vector a(ℓ) ∈ {0, 1}n under the assumption that
+(a(ℓ)
+i )i are independent random variables such that:
+Pr (vi ∈ Cℓ) = Pr
+
+a(ℓ)
+i = 1
+ def
+= Pi,ℓ,
+where the rows of the matrix P ∈ [0, 1]n×k sum to 1:Pk
+ℓ=1 Pi,ℓ = 1 for all i ∈ {1, . . . , n}.
+The random assignment for each vertex i follows a cat-
+egorical distribution of parameter Pi,: and the random
+clustering Ck is thus parameterized by P ∈ [0, 1]n×k.
+We define the random ratio-assignment vector f (ℓ) for
+cluster Cℓ as:
+f (ℓ) = 1q
+d|Cℓ|
+a(ℓ),
+where d|Cℓ| = Pn
+i=1 a(ℓ)
+i , and all the elements of f (ℓ)
+are in the interval [0 , 1] with the convention 0
+0 = 1.
+The stochastic counterpart of the quantity introduced
+earlier in Equation (1) is:
+\RatioCut(Ck) = 1
+2
+kX
+ℓ=1
+X
+1≤i,j≤n
+Wij(f (ℓ)
+i − f (ℓ)
+j )2. (6)
+Equation (3) can also be extended to the stochastic
+setting similarly.
+The next step is to compute the expected ratio-cut for
+a clustering Ck parameterized by P . Without loss of
+generality, we only have to compute E
+h
+(f (ℓ)
+1 − f (ℓ)
+2 )2
+i
+as a function of P due to the linearity of the expecta-
+tion. We prove the following result in Appendix A.1:
+Lemma 4.1 (Difference expectation). Let C be a sub-
+set of V and a its random assignment vector param-
+eterized by p ∈ [0, 1]n. Let f be its random ratio-
+assignment vector. Then we have the following:
+E
+
+(f1 − f2)2
+= (p1 + p2 − 2p1p2)E
+"
+1
+1 + \|C⊥(1,2)|
+#
+,
+where C⊥(i,j) = C\ {vi, vj}
+To avoid excluding pairs ( i, i)1≤i≤n from the summa-
+tion in Equation (6) each time, we will henceforth
+assume that Wii = 0 for all i ∈ {1, . . . , n}.
+The random variable \|C⊥(1,2)| = Pn
+i=3 ai is the sum of
+(n-2) independent (but not identical) Bernoulli ran-
+dom variables, also known as a Poisson binomial.
+It coincides with the binomial distribution when the
+Bernoulli random variables share the same parameter.
+See Appendix A.3 for a compilation of properties of
+this distribution including the proof of Lemma 4.2.
+Lemma 4.2 (Poisson binomial expectation) . Let Z
+be a Poisson binomial random variable of parameter
+α = (α1, . . . , αm) ∈ [0, 1]m. Then we have:
+E
+ 1
+1 + Z
+
+=
+Z 1
+0
+mY
+i=1
+(1 − αit)dt
+We can now express the expected ratio-cut by combin-
+ing the results from Lemma 4.1 and Lemma 4.2.
+Theorem 4.1 (Ratio-cut expectation) . The expected
+ratio-cut of the random clustering Ck parameterized by
+P ∈ [0, 1]n×k can be computed as E
+h
+\RatioCut(Ck)
+i
+=
+Pk
+ℓ=1 RC(P:,ℓ) where:
+RC(p) = 1
+2
+nX
+i,j=1
+Wij (pi + pj − 2pipj) I(p, i, j)
+I(p, i, j)
+def
+=
+Z 1
+0
+nY
+m̸=i,j
+(1 − pmt)dt
+The expression for RC(p) can be further simplified by
+consolidating the terms linear inp. However, we retain
+the current formulation as it will prove useful when
+sampling random pairs ( i, j) in the implementation.
+We will drop the cluster index ℓ in the next sections
+and use p ∈ [0, 1]n as the parameter of the random
+assignment. The goal now is to optimize RC( p).
+4.1 Computation of the expected ratio-cut
+A straightforward method to estimate the expected
+ratio-cut from Theorem 4.1 involves discretizing the
+Ayoub Ghriss, Claire Monteleoni
+interval [0, 1] to approximate the integral. By using a
+uniform discretization with a step size of 1
+T for T >0,
+we can apply the formula:
+I(p, i, j) = 1
+T
+TX
+t=1
+Y
+m̸=i,j
+(1 − pi
+t
+T )
+The quality of the approximation depends on T , but
+since the integrated function is polynomial in t, we
+have the luxury of using a weighted discretization
+scheme that ensures the exact computation of the in-
+tegral using the following quadrature method proven
+in Appendix A.4.
+Lemma 4.3 (Integral computation via quadrature) .
+Let m > 0 be an integer and cm
+def
+= ⌊ m
+2 ⌋ + 1 (the
+smallest integer such that 2cm ≥ m + 1), then there
+exist cm tuples (sq, tq)1≤q≤cm such that:
+Z 1
+0
+mY
+i=1
+(1 − pit)dt =
+cmX
+q=1
+sq
+mY
+i=1
+(1 − pitq),
+for all p ∈ [0, 1]m.
+The computation of I(p, i, j) for a given pair ( i, j)
+costs O(n2). We can still obtain the total RC( p) in
+O(cnn2) instead of O(n4) by computing the cn quan-
+tities ( Pn
+m=1 log (1 − pmtq))1≤q≤cn
+in advance. An-
+other challenge encountered when using the quadra-
+ture is the instability of the computations due to the
+potentially large number of elements in the product.
+Even with a tight approximation using batch-based es-
+timates, it still costs O(b3), where b is the batch size.
+Furthermore, the higher the number of clusters, the
+larger the batch size should be to obtain a good esti-
+mate of the integral for different clusters. These chal-
+lenges are to be expected since the original combinato-
+rial problem is generally NP-hard. See Appendix A.5
+for a detailed analysis of the batch-based estimate. In-
+stead, we prove in Appendix A.6 that the expected
+ratio cut can be upper-bounded by a much more ac-
+cessible quantity, as shown in Lemma 4.4.
+Lemma 4.4 (Integral upper-bound) . We adopt
+the same notation of Lemma 4.2 where α =
+(α1, . . . , αm) ∈ [0, 1]m, and we assume that α
+def
+=
+1
+m
+Pm
+i=1 αi > 0. Then we have:
+Z 1
+0
+mY
+i=1
+(1 − αit)dt ≤ 1
+(m + 1)α .
+The assumption α > 0 is not necessary if we extend
+the property to R∪{+∞}. We can now use Lemma 4.4
+to upper-bound RC( p).
+Lemma 4.5 (RC upper-bound). Using the notations
+of Theorem 4.1 and Lemma 4.4, we have:
+RC(p) ≤ e2
+2n
+1
+p
+X
+1≤i,j≤n
+wij(pi + pj − 2pipj)
+Interpretation Before we proceed with determin-
+ing an unbiased gradient estimator for the bound
+in Lemma 4.5, we seek to understand the signif-
+icance of the various quantities introduced previ-
+ously. In contrastive learning, the objective can be
+written as −2 P
+ij Wijpipj, whose minimization aims
+to assign highly similar samples to the same clus-
+ter. The objective in ratio-cut can be expressed asP
+ij Wij [pi(1 − pj) + pj(1 − pi)], which is minimized
+when dissimilar samples are separated into different
+clusters, in alignment with the initial goal of minimiz-
+ing the cut. It is worth noting that the minimum of
+the term Wij [pi(1 − pj) + pj(1 − pi)] is Wij, and it is
+achieved when either vi and vj are in different clusters.
+Lemma 4.2 generalizes the scaling by the inverse of the
+size of a cluster C to the probabilistic setting. Let’s
+assume that p ∈ {0, 1}n (deterministic assignment),
+then (pi + pj − 2pipj) = 1 if and only if vi and vj are
+in different clusters. In such case, we can easily prove
+the following:
+E
+"
+1
+1 + c|C|
+#
+=
+Z 1
+0
+nY
+i=1,pi=1
+(1 − t)dt = 1
+1 + np .
+As n becomes sufficiently large, the quantity 1
+n
+1
+p from
+Lemma 4.5 approximates 1
+1+np and, therefore, also ap-
+proximates E
+h
+1
+1+ c|C|
+i
+. Consequently, the bounds we’ve
+seen so far are tight in the deterministic case.
+4.2 Stochastic gradient of the objective
+We will drop the scaling factor 1
+2n when upper bound-
+ing RC( Ck), we can thus succinctly write the fol-
+lowing upper bound for the expected ratio-cut with
+P = diag
+ 
+P:,1, . . . ,P:,k
+
+as RC( Ck) ≤ Lrc(W , P )
+such that:
+Lrc(W , P ) =
+kX
+ℓ=1
+nX
+i,j=1
+1
+P:,ℓ
+Wij (Pi,ℓ + Pj,ℓ − 2Pi,ℓPj,ℓ)
+= Tr(P
+−1
+(1n,k − P )⊤W P), (7)
+Let us examine the derivative of Lrc of a single cluster
+with respect to pi, ˙pi = dLprcut
+dpi
+:
+˙pi ∝ 1
+p2
+nX
+i,j=1
+Wij
+h
+(1 − 2pj)p − 1
+n (pi + pj − 2pipj)
+
+,
+(8)
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+Algorithm 1 Probabilistic Ratio-Cut (PRCut) Algo-
+rithm
+Require: Dataset (vi), Similarity kernel K, batch size
+b, encoder Nθ parameterized by θ, number of clus-
+ters k,P 0 = 1
+k 1k,β > 0, polytope regularization
+weight γ, t = 0.
+1: while not terminated do
+2: t ← t + 1
+3: Sample left batch Sl of size b
+4: Sample right batch Sr of size b
+5: Compute W = K(Sl, Sr)
+6: compute P l
+θ, P r
+θ ← Nθ(Sl), Nθ(Sr) ∈ Rb×k
+7: Update P t ← (1 − βt)P t−1 + βt
+2
+
+P l
+θ + P r
+θ
+
+8: Compute ˙P l
+θ and ˙P r
+θ using Equation (8)
+9: Back-propagate Tr
+h
+P l
+θ sg( ˙P l
+θ)⊤ + P r
+θ sg( ˙P r
+θ )⊤
+i
+10: Back-propagate γDKL([P l
+θ, P r
+θ ] ∥ 1
+k Ik)
+11: Use the accumulated gradients gt to update θ
+12: end while
+In order to obtain an unbiased estimate for the gradi-
+ent, we need to acquire an accurate estimate of p. We
+do this in the online setting by computing the moving
+average:
+pt
+ma = (1 − βt)pt−1
+ma + βtpt,
+such that βt = β
+t and pt is a batch-based estimate
+of p at time t. Then, the unbiased gradient can be
+obtained by back-propagating [sg( ˙pi)pi], with sg being
+the gradient-stopping operator.
+4.3 Regularization
+As we aim to optimize Lrc(W , P ) using gradient de-
+scent, the main challenge our method faces is that
+the assignments may collapse to a single cluster Cm
+with a probability close to 1. This translates to 
+P:,ℓ
+
+ℓ̸=m ≈ 0, which renders the gradient updates
+highly unstable. Benamou et al. (2014) have adopted
+the constraint that P belongs to the polytope of dis-
+tributions Uk, defined as:
+Uk =
+
+P ∈ Rn×k
++ |P ⊤1n = 1
+k 1k
+
+,
+Instead of restricting the clusters to be equally likely
+through the Bregman projection into Uk, we only en-
+courage such behavior using Kullback-Leibler diver-
+gence regularization. By selecting the appropriate reg-
+ularization weight γ, the additional term will ensure
+that the likelihood of each of the k clusters, P , ex-
+ceeds a certain threshold δ(γ) > 0 for the optimal P .
+This approach does not necessarily imply that all the
+clusters will be utilized, as the assignment probability
+for cluster Cℓ could be significantly above δ without
+any sample being more likely assigned to cluster Cℓ.
+The final objective that we aim to optimize is:
+Lprcut(W , P ) = Lrc(W , P ) + γDKL(P ∥ 1
+k 1k)
+4.4 Similarity measure
+We have assumed thus far that the kernel K is pro-
+vided as input. We also assert that the performance
+of any similarity-based clustering ultimately depends
+on the quality of the similarity function used. The sim-
+plest kernel we can use is the adjacency matrix for a
+k-nearest neighbors graph, where K(vi, vj) = 1 when
+either vi or vj is among the k nearest neighbors of
+each other (to ensure that the kernel is symmetric).
+We can also use the Simple (SimCLR) or the Sym-
+biotic (All4One) contrastive learning methods (Chen
+et al., 2020; Estepa et al., 2023) to train a neural net-
+work to learn the pairwise similarities. Once we train
+our similarity network, we use the cosine of the rep-
+resentations of the samples as our similarity function
+to either compute Wij = exp
+
+cosine(zi,zj )
+τ
+
+for some
+temperature τ >0 or to build the k-nearest neighbors
+graph based on these representations.
+4.5 Computational and Memory F ootprint
+If the similarity matrix W is dense, the time complex-
+ity of computing the PRCut objective is O(n3), iden-
+tical to a vanilla spectral clustering approach. In con-
+trast, for a sparse graph where similarity is determined
+based on the m-nearest neighbors, the time complex-
+ity of conventional spectral clustering is O(nmk), not
+accounting for the additional cost of O(nk2) incurred
+by running k-means on the computed eigenvectors.
+In the case of batch PRCut, the expected computa-
+tional cost for evaluating the batch loss with a batch
+size of b is O
+  m
+n kb2
+, while the memory requirement
+remains constant at O(b2). Consequently, when ex-
+ecuted for T steps, the overall time complexity of
+stochastic PRCut becomes O
+ 
+T m
+n kb2
+.
+5 EXPERIMENTS
+We train a neural network Nθ : Rp 7→ ∆k−1 that maps
+the vertex vi to its cluster assignment probabilitiesP θ
+i ,
+where θ ∈ Rq is the parameter of the network. The
+last layer of the neural network is a Softmax layer,
+ensuring that the constraint Pk
+ℓ=1 Piℓ = 1 is always
+satisfied. We assume that the number of class labels k
+is provided. When computing the batch-based gradi-
+ent using Equation (8), we use the factor 1
+b instead of
+Ayoub Ghriss, Claire Monteleoni
+1
+n , where b is the batch size 1.
+Since Lrc(W , P θ) is linear in W , we scale it by 1
+∥W ∥1
+to ensure consistency in the gradient descent method
+across different datasets and similarity measures.
+Metrics To benchmark the performance of our al-
+gorithm, we assume that we have access to the true
+labeling y = ( yi)i and the algorithm’s clustering c.
+We use three different metrics defined as follows:
+• Unsupervised Accuracy (ACC) : We use the
+Kuhn-Munkres algorithm (Munkres, 1957) to find
+the optimal permutationσk of {1, . . . , k} such that
+1
+n maxσ∈σk
+Pn
+i=1 1yi=σ(ci) is maximized between
+the true labeling ( yi)i and the clustering ( ci)i.
+• Normalized Mutual Information (NMI) is
+defined as: NMI( y, c) = I(y,c)
+max{H(l),H(c)} Where
+I(y, c) is the mutual information between y and
+c and H is the entropy measure.
+• Adjusted Rand Index (ARI) to evaluates the
+agreement between the true class labels and the
+learned clustering.
+• Ratio Cut (RC) is computed using the formula
+in Equation (3) using the raw Laplacian matrix.
+Before we compare our method to spectral clustering
+and other clustering approaches, we first assess the
+quality of the clustering when using the perfect similar-
+ity measure, where K(vi, vj) = 1 if vi and vj share the
+same label, and K(vi, vj) = 0 otherwise. For this ex-
+periment, we employ a simple Multi-Layer Perceptron
+(MLP) consisting of 3 layers with 512 hidden units,
+followed by Gaussian Error Linear Units (GeLU) acti-
+vations. In the PRCut network, the last layer utilizes
+the Softmax activation. We compare the two methods
+across three datasets: MNIST (Lecun et al., 1998),
+Fashion-MNIST (F-MNIST) (Xiao et al., 2017), and
+CIF AR10 (Krizhevsky, 2009). The classifier is trained
+by optimizing the cross-entropy loss (CE).
+The MLP classifier trained directly on the labeled data
+and the PRCut clustering using the labeled similarity
+demonstrate similar performance. This shows that our
+approach is more versatile and can be used in various
+learning methods while perfectly reflecting the quality
+of the similarity in the resulting clustering.
+In Table 2 we compare our approach to vanilla Spectral
+Clustering (SC) using k-neighbor graph adjacency as a
+similarity measure for k = 150 using the entire training
+set. Since the final performance depends on the k-
+means initialization, we report the best run for SC.
+1The code to reproduce PRCut is available at
+https://github.com/ayghri/prcut
+Table 1: Benchmarking PRCut when using label-based
+similarity
+Dataset Method ACC NMI
+MNIST CE 0.980 0.943
+PRCut 0.987 0.938
+F-MNIST CE 0.885 0.803
+PRCut 0.887 0.789
+CIF AR10 CE 0.582 0.369
+PRCut 0.571 0.359
+Table 2: Comparison between PRCut and Spectral
+Clustering (SC)
+Dataset Method ACC NMI RC
+MNIST
+SC (Best) 0.70 0.744 170.1
+PRCut 0.821 0.778 150.2
+F-MNIST SC (Best) 0.596 0.593 110.2
+PRCut 0.658 0.620 101.5
+CIF AR10 SC (Best) 0.217 0.086 479.3
+PRCut 0.243 0.121 440.3
+Since the final objective is to minimize the ratio cut,
+our approach achieves a better ratio cut value com-
+pared to vanilla spectral clustering. Whether such im-
+provement translates to an enhancement in the clus-
+tering metrics depends on the similarity function. In
+all the 3 datasets, our approach outperforms the spec-
+tral relaxation of the ratio-cut.
+For the third set of experiments reported in Table 3,
+we compare our method to VaDE (Jiang et al., 2017),
+VMM (Stirn & Knowles, 2024), and Turtle (Gadet-
+sky et al., 2024). We have observed that VaDE does
+not generalize well across datasets, as its performance
+drastically degrades when applied to the Fashion-
+MNIST dataset. The VMM approach is a more con-
+sistent variational autoencoder (V AE) with a mixture
+model prior, achieving the best reported performance
+on the Fashion-MNIST dataset in the literature. We
+also report the results for methods with the suffix ”-
+D,” which use the pre-trained representation model
+DINOv2 (Oquab et al., 2024), while the suffix ”-V”
+denotes methods that utilize the representation from
+the CLIP (Radford et al., 2021) vision transformer. In
+both of these approaches, the k-neighbors graph and
+the trained neural networks take the samples in the
+representation spaces as input.
+The neural network consists of a single linear layer
+followed by the softmax operator. The learning rate
+was set to a constant value of 10 −4 and using a 10 −7
+weight decay, with a bach size of b = 2048. We set the
+entropy regularization to γ = 100 .0 and the moving
+average parameter to β = 0.8.
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+Table 3: Comparison of PRCut to the best-performing
+clustering methods.
+Dataset Method ACC NMI
+MNIST
+SC 0.701 0.744
+VaDE 0.857 0.838
+VMM 0.960 0.907
+Turtle-D 0.573 0.544
+PRCut-V 0.771 0.734
+F-MNIST
+SC 0.596 0.593
+VaDE 0.352 0.496
+VMM 0.712 0.688
+Turtle-D 0.764 0.723
+PRCut-D 0.791 0.758
+CIF AR10
+SC 0.217 0.121
+Turtle-V 0.972 0.929
+PRCut-V 0.975 0.934
+CIF AR100
+Turtle-D 0.806 0.870
+PRCut-D 0.789 0.856
+Our method remains competitive compared to Tur-
+tle and achieves the best reported performance on
+Fashion-MNIST, which was designed to be a more
+challenging dataset than MNIST. Furthermore, our
+approach does not rely on any assumptions about the
+structure of the representation spaces, in contrast to
+Turtle, which is based on the premise that the best
+clusters are linearly separable—a property that is in-
+herently valid for DINOv2 and CLIP. This may explain
+why it does not perform as well on grayscale images
+such as MNIST and Fashion-MNIST, where linear sep-
+arability is not as prominent. We note that the Turtle
+results in our benchmark are based on a single repre-
+sentation space for a fair comparison, as the original
+paper performs best when it combines two representa-
+tion spaces.
+Table 4: Comparison representations using PRCut
+Dataset Rep ACC NMI
+CIF AR10
+Raw 0.243 0.121
+SimCLR 0.721 0.652
+All4One 0.710 0.635
+VitL-14 0.975 0.934
+DinoV2 0.774 0.797
+CIF AR100
+Raw 0.054 0.022
+SimCLR 0.362 0.483
+All4One 0.382 0.511
+VitL-14 0.720 0.755
+DinoV2 0.789 0.856
+In Table 4, we compare the performance of our method
+using various pre-trained self-supervised representa-
+tion learning models. In particular, we rely on the
+solo-learn library (da Costa et al., 2022) to retrieve
+or fine-tune the SimCLR and All4One models. While
+these two approaches perform well when evaluated us-
+ing linear probes or a k-nearest neighbor classifier, the
+similarities in the embedding space for datasets with
+a higher number of class labels (CIF AR100) are too
+sparse to capture useful clusters. In that regard, Di-
+noV2 embedding performs better than CLIP vision
+transformer.
+6 Conclusion and future work
+We have introduced a novel method that approaches
+the graph ratio-cut optimization from a probabilistic
+perspective. Compared to the classical Spectral Clus-
+tering based on the raw Laplacian, PRCut achieves
+better clustering performance and more optimal ratio-
+cut values. However, the performance strongly de-
+pends on the sparsity of the global similarity. With the
+recently developed self-supervised representation mod-
+els that have proven to be powerful, we have demon-
+strated that PRCut translates the similarities between
+samples in the embedding space into high quality clus-
+tering and achieve new best clusterings for Fashion-
+MNIST while remaining competitive with state-of-the-
+art clustering methods.
+While the current work serves as an introduction to
+this novel approach, the potential extensions of our
+method appear boundless. For example, PRCut could
+be leveraged as a dimensionality reduction technique
+by incorporating a bottleneck layer within the clus-
+tering neural network. Furthermore, the methodology
+could be adapted under the premise of linear separa-
+bility of the true class labels, similar to the approach
+adopted by Gadetsky et al. (2024). The issue of dy-
+namically determining the optimal number of clusters
+remains unresolved, given our current assumption that
+this information is supplied as an input to our algo-
+rithm.
+The algorithm can also be extended to offline learning
+via Equation (7). Notably, when considering equally
+likely clusters, the problem simplifies to a quadratic
+form, with the Hessian being proportional to −W .
+By leveraging the structure of the similarity matrix,
+we can derive additional guarantees about the optimal
+solution. This enables the definition of an iterative ap-
+proach similar to the Sinkhorn-Knopp algorithm (Be-
+namou et al., 2014), offering promising avenues for fur-
+ther exploration.
+References
+R. Alam and S. Bora. On sensitivity of eigenvalues
+and eigendecompositions of matrices. Linear Alge-
+bra and its Applications , 396:273–301, 2005. ISSN
+0024-3795.
+Ayoub Ghriss, Claire Monteleoni
+Jean-David Benamou, Guillaume Carlier, Marco Cu-
+turi, Luca Nenna, and Gabriel Peyr´ e. Iterative breg-
+man projections for regularized transportation prob-
+lems, 2014.
+Sean X. Chen and Jun S. Liu. Statistical applications
+of the poisson-binomial and conditional bernoulli
+distributions. Statistica Sinica, 7(4):875–892, 1997.
+ISSN 10170405, 19968507.
+Ting Chen, Simon Kornblith, Mohammad Norouzi,
+and Geoffrey Hinton. A simple framework for con-
+trastive learning of visual representations, 2020.
+Victor Guilherme Turrisi da Costa, Enrico Fini, Moin
+Nabi, Nicu Sebe, and Elisa Ricci. solo-learn: A li-
+brary of self-supervised methods for visual represen-
+tation learning. Journal of Machine Learning Re-
+search, 23(56):1–6, 2022. URL http://jmlr.org/
+papers/v23/21-1155.html.
+Inderjit S. Dhillon, Yuqiang Guan, and Brian Kulis.
+Kernel k-means: Spectral clustering and normalized
+cuts. In Proceedings of the Tenth ACM SIGKDD In-
+ternational Conference on Knowledge Discovery and
+Data Mining, KDD ’04, pp. 551–556, New York, NY,
+USA, 2004. Association for Computing Machinery.
+ISBN 1581138881.
+Imanol G. Estepa, Ignacio Sarasua, Bhalaji Na-
+garajan, and Petia Radeva. All4one: Symbi-
+otic neighbour contrastive learning via self-attention
+and redundancy reduction. In Proceedings of the
+IEEE/CVF International Conference on Computer
+Vision (ICCV) , pp. 16243–16253, October 2023.
+Absalom E. Ezugwu, Abiodun M. Ikotun, Olaide O.
+Oyelade, Laith Abualigah, Jeffery O. Agushaka,
+Christopher I. Eke, and Andronicus A. Akinyelu.
+A comprehensive survey of clustering algorithms:
+State-of-the-art machine learning applications, tax-
+onomy, challenges, and future research prospects.
+Engineering Applications of Artificial Intelligence ,
+110:104743, 2022. ISSN 0952-1976.
+Artyom Gadetsky, Yulun Jiang, and Maria Brbic. Let
+go of your labels with unsupervised transfer, 2024.
+S. Guha, N. Mishra, R. Motwani, and L. O’Callaghan.
+Clustering data streams. In Proceedings 41st Annual
+Symposium on Foundations of Computer Science ,
+pp. 359–366, 2000.
+Lars W. Hagen and Andrew B. Kahng. New spectral
+methods for ratio cut partitioning and clustering.
+IEEE Trans. Comput. Aided Des. Integr. Circuits
+Syst., 11:1074–1085, 1991.
+R. Bulirsch J. Stoer. Introduction to Numerical Anal-
+ysis, volume 1. Springer New York, NY, 2013.
+Qiang Ji, Yanfeng Sun, Junbin Gao, Yongli Hu, and
+Baocai Yin. A decoder-free variational deep embed-
+ding for unsupervised clustering. IEEE Transactions
+on Neural Networks and Learning Systems, 33:5681–
+5693, 2021.
+Zhuxi Jiang, Yin Zheng, Huachun Tan, Bangsheng
+Tang, and Hanning Zhou. Variational deep embed-
+ding: An unsupervised and generative approach to
+clustering, 2017.
+Alex Krizhevsky. Learning multiple layers of features
+from tiny images, 2009.
+Tejas D Kulkarni, Karthik Narasimhan, Ardavan
+Saeedi, and Josh Tenenbaum. Hierarchical deep
+reinforcement learning: Integrating temporal ab-
+straction and intrinsic motivation. In D. Lee,
+M. Sugiyama, U. Luxburg, I. Guyon, and R. Garnett
+(eds.), Advances in Neural Information Processing
+Systems, volume 29. Curran Associates, Inc., 2016.
+Y. Lecun, L. Bottou, Y. Bengio, and P. Haffner.
+Gradient-based learning applied to document recog-
+nition. Proceedings of the IEEE , 86(11):2278–2324,
+1998. doi: 10.1109/5.726791.
+Yunfan Li, Peng Hu, Zitao Liu, Dezhong Peng,
+Joey Tianyi Zhou, and Xi Peng. Contrastive clus-
+tering. CoRR, abs/2009.09687, 2020. URL https:
+//arxiv.org/abs/2009.09687.
+S. P. Lloyd. Least square quantization in pcm.
+Bell Telephone Laboratories Paper , 28(2):129–137,
+March 1957. ISSN 0018-9448. doi: 10.1109/TIT.
+1982.1056489.
+Marlos C. Machado, Marc G. Bellemare, and Michael
+Bowling. A Laplacian framework for option dis-
+covery in reinforcement learning. In Doina Pre-
+cup and Yee Whye Teh (eds.), Proceedings of the
+34th International Conference on Machine Learn-
+ing, volume 70 of Proceedings of Machine Learning
+Research, pp. 2295–2304. PMLR, 06–11 Aug 2017a.
+Marlos C. Machado, Clemens Rosenbaum, Xiaoxiao
+Guo, Miao Liu, Gerald Tesauro, and Murray Camp-
+bell. Eigenoption discovery through the deep succes-
+sor representation. CoRR, abs/1710.11089, 2017b.
+Mahesh Mohan and Claire Monteleoni. Exploiting
+sparsity to improve the accuracy of nystr¨ om-based
+large-scale spectral clustering. In 2017 International
+Joint Conference on Neural Networks (IJCNN) , pp.
+9–16, 2017.
+James Munkres. Algorithms for the assignment and
+transportation problems. Journal of the Society
+for Industrial and Applied Mathematics , 5(1):32–38,
+1957. ISSN 03684245. URL http://www.jstor.
+org/stable/2098689.
+Andrew Ng, Michael Jordan, and Yair Weiss. On spec-
+tral clustering: Analysis and an algorithm. In T. Di-
+etterich, S. Becker, and Z. Ghahramani (eds.), Ad-
+vances in Neural Information Processing Systems ,
+volume 14. MIT Press, 2001.
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+Maxime Oquab, Timoth´ ee Darcet, Th´ eo Moutakanni,
+Huy Vo, Marc Szafraniec, Vasil Khalidov, Pierre
+Fernandez, Daniel Haziza, Francisco Massa,
+Alaaeldin El-Nouby, Mahmoud Assran, Nicolas
+Ballas, Wojciech Galuba, Russell Howes, Po-Yao
+Huang, Shang-Wen Li, Ishan Misra, Michael Rab-
+bat, Vasu Sharma, Gabriel Synnaeve, Hu Xu, Herv´ e
+Jegou, Julien Mairal, Patrick Labatut, Armand
+Joulin, and Piotr Bojanowski. Dinov2: Learning
+robust visual features without supervision, 2024.
+URL https://arxiv.org/abs/2304.07193.
+K. B. Petersen and M. S. Pedersen. The matrix
+cookbook, nov 2012. URL http://www2.compute.
+dtu.dk/pubdb/pubs/3274-full.html. Version
+20121115.
+David Pfau, Stig Petersen, Ashish Agarwal, David
+G. T. Barrett, and Kimberly L. Stachenfeld. Spec-
+tral inference networks: Unifying deep and spectral
+learning, 2020.
+Alec Radford, Jong Wook Kim, Chris Hallacy, Aditya
+Ramesh, Gabriel Goh, Sandhini Agarwal, Girish
+Sastry, Amanda Askell, Pamela Mishkin, Jack
+Clark, Gretchen Krueger, and Ilya Sutskever. Learn-
+ing transferable visual models from natural language
+supervision, 2021. URL https://arxiv.org/abs/
+2103.00020.
+Uri Shaham, Kelly Stanton, Henry Li, Ronen Basri,
+Boaz Nadler, and Yuval Kluger. Spectralnet: Spec-
+tral clustering using deep neural networks. In Inter-
+national Conference on Learning Representations ,
+2018.
+Michael Shindler and Alex Wong. Fast and accurate
+k-means for large datasets. NIPS, 24, 01 2011.
+Andrew Stirn and David A. Knowles. The vampprior
+mixture model, 2024. URL https://arxiv.org/
+abs/2402.04412.
+Ulrike von Luxburg. A tutorial on spectral clustering.
+CoRR, abs/0711.0189, 2007.
+Han Xiao, Kashif Rasul, and Roland Vollgraf. Fashion-
+mnist: a novel image dataset for benchmarking ma-
+chine learning algorithms. CoRR, abs/1708.07747,
+2017. URL http://arxiv.org/abs/1708.07747.
+Shinjae Yoo, Hao Huang, and Shiva Prasad Ka-
+siviswanathan. Streaming spectral clustering. In
+2016 IEEE 32nd International Conference on Data
+Engineering (ICDE), pp. 637–648, 2016.
+Ayoub Ghriss, Claire Monteleoni
+Checklist
+1. For all models and algorithms presented, check if
+you include:
+(a) A clear description of the mathematical set-
+ting, assumptions, algorithm, and/or model.
+[Y es]
+(b) An analysis of the properties and complexity
+(time, space, sample size) of any algorithm.
+[Y es]
+(c) (Optional) Anonymized source code, with
+specification of all dependencies, including
+external libraries. [ Y es]
+2. For any theoretical claim, check if you include:
+(a) Statements of the full set of assumptions of
+all theoretical results.[ Y es]
+(b) Complete proofs of all theoretical re-
+sults.[Y es]
+(c) Clear explanations of any assumptions.[ Y es]
+3. For all figures and tables that present empirical
+results, check if you include:
+(a) The code, data, and instructions needed to
+reproduce the main experimental results (ei-
+ther in the supplemental material or as a
+URL).[Y es]
+(b) All the training details (e.g., data splits, hy-
+perparameters, how they were chosen).[ Y es]
+(c) A clear definition of the specific measure or
+statistics and error bars (e.g., with respect to
+the random seed after running experiments
+multiple times).[Y es]
+(d) A description of the computing infrastructure
+used. (e.g., type of GPUs, internal cluster, or
+cloud provider). [ No]
+4. If you are using existing assets (e.g., code, data,
+models) or curating/releasing new assets, check if
+you include:
+(a) Citations of the creator If your work uses ex-
+isting assets. [ Y es]
+(b) The license information of the assets, if ap-
+plicable. [ Y es]
+(c) New assets either in the supplemental mate-
+rial or as a URL, if applicable.[ Not Appli-
+cable]
+(d) Information about consent from data
+providers/curators. [ Not Applicable]
+(e) Discussion of sensible content if applicable,
+e.g., personally identifiable information or of-
+fensive content. [ Not Applicable]
+5. If you used crowdsourcing or conducted research
+with human subjects, check if you include:
+(a) The full text of instructions given to partici-
+pants and screenshots. [ Not Applicable]
+(b) Descriptions of potential participant risks,
+with links to Institutional Review Board
+(IRB) approvals if applicable. [ Not Appli-
+cable]
+(c) The estimated hourly wage paid to partici-
+pants and the total amount spent on partic-
+ipant compensation. [ Not Applicable]
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+A Proofs for the upper bound
+A.1 Ratio-cut expectation proof
+Lemma 4.1 (Difference expectation). Let C be a subset of V and a its random assignment vector parameterized
+by p ∈ [0, 1]n. Let f be its random ratio-assignment vector. Then we have the following:
+E
+
+(f1 − f2)2
+= (p1 + p2 − 2p1p2)E
+"
+1
+1 + \|C⊥(1,2)|
+#
+,
+where C⊥(i,j) = C\ {vi, vj}
+Proof. Using the probabilistic formulations. We have:
+c|C| =
+nX
+i=1
+ai = a1 + a2 + \|C ⊥(1,2)|
+We can then expand the expectation:
+E
+h
+(bf1 − bf2)2
+i
+= E
+"
+1
+a1 + a2 + \|C ⊥(i,j)|
+(a1 − a2)2
+#
+= E
+"
+1
+1 + \|C ⊥(1,2)|
+#
+Pr (a1, a2 = 1, 0) + E
+"
+1
+1 + \|C ⊥(1,2)|
+#
+Pr (a1, a2 = 0, 1)
+= E
+"
+1
+1 + \|C ⊥(1,2)|
+#
+(p1(1 − p2) + (1 − p1)p2)
+= E
+"
+1
+1 + \|C ⊥(1,2)|
+#
+(p1 + p2 − 2p1p2)
+A.2 Binomial Poisson distribution properties
+Let Z be a Poisson binomial random variable of parameter p = (α1, . . . , αn). We can write Z as:
+Z =
+mX
+i=1
+ri,
+where (ri)i are independent random variable such that:
+ri ∼ Bernoulli(αi).
+Lemma A.1. We denote by GZ the Probability-Generating Function (PGF) for the Poisson binomial Z of
+parameter α ∈ [0, 1]m. We have the following:
+µ
+def
+= E [Z] =
+nX
+i=1
+αi
+σ2 def
+= E
+
+(Z − µ)2
+= µ −
+mX
+i=1
+α2
+i
+GZ (t)
+def
+= E
+h
+tZ
+i
+=
+mY
+i=1
+(1 − αi + αit)
+Ayoub Ghriss, Claire Monteleoni
+Proof.
+µ
+def
+= E [Z] =
+mX
+i=1
+E [ri] =
+nX
+i=1
+αi
+Since (ri) are independent random variable, the variance of their sum is the sum of the variance:
+σ2 def
+= Var[Z] =
+nX
+i=1
+Var[ri] =
+nX
+i=1
+αi(1 − αi) = µ −
+nX
+i=1
+α2
+i
+For the PGF:
+GZ(t)
+def
+= E
+
+tZ
+= E
+h
+t
+Pn
+i=1 ri
+i
+=
+nY
+i=1
+E [tri ]
+nY
+i=1
+(1 − αi) ∗ t0 + αit1
+=
+nY
+i=1
+(1 − αi + αit)
+The first approach for computingE
+h
+1
+1+Z
+i
+is to use the definition of the expectation, which requires the knowledge
+of the probabilities (Pr (Z = i))i:
+E
+ 1
+1 + Z
+
+=
+nX
+i=0
+1
+1 + i Pr (Z = i) .
+Lemma A.2. Let P [n] denote the power set of {1, . . . , n}, and Ii be the set of elements of P [n] that contain
+exactly i unique integers. Pr (Z = i) can be computed as:
+Pr (Z = i) =
+X
+I∈Ii
+Y
+j∈I
+pj
+Y
+m∈I
+(1 − pm) (9)
+Proof. Refer to Chen & Liu (1997)
+A.3 Proof of the integral formula
+We will use the properties introduced in Appendix A.2 to prove the following lemma:
+Lemma 4.2 (Poisson binomial expectation) . Let Z be a Poisson binomial random variable of parameter α =
+(α1, . . . , αm) ∈ [0, 1]m. Then we have:
+E
+ 1
+1 + Z
+
+=
+Z 1
+0
+mY
+i=1
+(1 − αit)dt
+Proof. The PGF for Z is
+GZ(t) = E
+
+tZ
+=
+mY
+i=1
+(1 − αi + αit)
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+Using the Probability-Generating Function (PGF), we can write:
+E
+ 1
+1 + Z
+
+= E
+Z 1
+0
+tZdt
+
+=
+Z 1
+0
+E
+
+tZ
+dt
+=
+Z 1
+0
+Y
+i
+(1 − αi + αit)dt
+=
+Z 1
+0
+Y
+i
+(1 − αit)dt change of variable: t ← 1 − t
+Exchanging the expectation and the integral is based on the fact that the function we are integrating is measur-
+able, non-negative, and bounded by the constant 1. We can then use Fubini’s theorem to change the order of
+integration.
+Corollary 1. Using the notations from lemma A.2 we can show that:
+E
+ 1
+1 + Z
+
+=
+nX
+i=1
+(−1)i
+1 + i
+X
+I∈Ii
+Y
+j∈I
+pj,
+where Ii is the set of subsets of {1, . . . , n} that contain exactly i elements.
+This offers a straightforward approach for approximating the expectation, which is notably simpler to compute
+iteratively. However, it’s not practical as the number of terms to sum is n! and can only be implemented for
+small graphs.
+A.4 Integral computation
+Lemma 4.3 (Integral computation via quadrature) . Let m >0 be an integer and cm
+def
+= ⌊ m
+2 ⌋ + 1 (the smallest
+integer such that 2cm ≥ m + 1), then there exist cm tuples (sq, tq)1≤q≤cm such that:
+Z 1
+0
+mY
+i=1
+(1 − pit)dt =
+cmX
+q=1
+sq
+mY
+i=1
+(1 − pitq),
+for all p ∈ [0, 1]m.
+Proof. This theorem is a direct application of Gauss-Legendre quadrature (See J. Stoer (2013)). It states that
+any integral of the form: Z 1
+−1
+fm(t)dt
+where fm is polynomial of degree at most 2 m − 1 can be exactly computed using the sum:
+mX
+i=1
+wif (ri)
+where (ri) are the roots of Pm, Legendre polynomial of degree m, and the weights are computed as:
+wi = 2
+(1 − ri)2[P ′n(ri)]2 ≥ 0
+For an integral on the [0 , 1] interval, we use change of variable to find the corresponding weights and nodes are:
+sj = wj
+2
+tj = rj
+2 + 1
+2
+Ayoub Ghriss, Claire Monteleoni
+A.5 Batch estimation of the expected ratio-cut
+Returning to the probabilistic ratio-cut, we can combine corollary theorem 4.1 and lemma 4.2 to express the
+expected ratio-cut as:
+nX
+i=1
+nX
+j>i
+wi,j(pi + pj − 2pipj)
+Z 1
+0
+Y
+k̸=i,j
+(1 − pkt)dt
+Practically, with large datasets, it is expensive to compute the quantity
+R 1
+0
+Q
+k̸=i,j(1 − pkt)dt on the entire
+dataset: the quadrature calculation costs O( n2
+2 ) and the total cost of computing the objective is O(kn3) for all
+the clusters.
+We can also show that we can get a tighter bound if S is a random subset such that
+∀i ∈ [1, n]P (i ∈ S) = γ
+Theorem A.1 (Batch estimation). Let S is a random subset such that
+∀i ∈ [1, n], P(i ∈ S) = γ <1.
+Then we can show that:
+Z 1
+0
+nY
+i=1
+(1 − pkt)dt ≤ ES
+"Z 1
+0
+Y
+s∈S
+(1 − pst)
+1
+γ dt
+#
+(10)
+Proof.
+nY
+i=1
+(1 − pit) = exp
+" nX
+i=1
+log(1 − pit)
+#
+= exp
+"
+1
+γ ES
+"X
+i∈S
+log(1 − pit)
+##
+= exp
+"
+ES
+"X
+i∈S
+1
+γ log(1 − pit)
+##
+≤ ES
+"
+exp
+"X
+i∈S
+1
+γ log(1 − pit)
+##
+= ES
+"Y
+s∈S
+(1 − pst)
+1
+γ
+#
+.
+Theorem A.1 provides a bound on the integral based on the expectation of a random batch of samples. We can
+show that if pi ∈ {0, 1} that the expectation over the batch equal to the estimate over the whole dataset. If we
+sample a random batch of size b then γ = b
+n , the fraction of the entire data that we’re using.
+A.6 Objective upper bound
+Lemma 4.4 (Integral upper-bound) . We adopt the same notation of Lemma 4.2 where α = ( α1, . . . , αm) ∈
+[0, 1]m, and we assume that α
+def
+= 1
+m
+Pm
+i=1 αi > 0. Then we have:
+Z 1
+0
+mY
+i=1
+(1 − αit)dt ≤ 1
+(m + 1)α .
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+Z 1
+0
+mY
+i=1
+(1 − αit)dt =
+Z 1
+0
+exp
+" mX
+i=1
+log(1 − αit)
+#
+dt
+=
+Z 1
+0
+exp
+"
+1
+m
+mX
+i=1
+log(1 − αit)
+#m
+dt
+≤
+Z 1
+0
+"
+1
+m
+mX
+i=1
+exp log(1 − αit)
+#m
+dt exponential is convex
+=
+Z 1
+0
+"
+1
+m
+mX
+i=1
+(1 − αit)
+#m
+dt
+=
+Z 1
+0
+(1 − pt)m dt
+= − 1
+α(m + 1)
+h
+(1 − αt)m+1
+i1
+0
+= 1
+α(m + 1)
+h
+1 − (1 − α)m+1
+i
+≤ 1
+α(m + 1).
+Moving from the proof of Lemma 4.4 to Lemma 4.5 requires a modification in the previous proof. To get an
+upper bound without making any assumptions about p, we can prove the following:
+I(p, 1, 2) =
+Z 1
+0
+nY
+i≥3
+(1 − pit)dt
+≤
+Z 1
+0
+"
+1
+n − 2
+nX
+i=3
+(1 − pit)
+#(n−2)
+dt
+≤
+Z 1
+0
+"
+1
+n − 2
+nX
+i=1
+(1 − pit)
+#(n−2)
+dt
+=
+Z 1
+0
+ n
+n − 2 (1 − pt)
+(n−2)
+dt
+=
+ n
+n − 2
+n−2 1
+(n − 1)p
+=
+ n
+n − 2
+n−2 n
+n − 1
+1
+np
+= (e2 − o(n)) 1
+np
+< e2
+np
+Ayoub Ghriss, Claire Monteleoni
+But by assuming that 1
+n−2
+Pn
+i=3(1 − pit) ≈ 1
+n
+Pn
+i=1(1 − pit) = p, we get the bound in Lemma 4.5:
+1
+n − 1
+1
+1
+n−2
+Pn
+i=3 pi
+= n − 2
+n − 1
+1Pn
+i=3 pi
+≈ n − 2
+n − 1
+1Pn
+i=1 pi
+≤ 1
+n
+1
+p
+B Proofs for the stochastic gradient
+B.1 Offline Gradient
+The offline gradient of the objective can be obtained directly by differentiating the matrix version of the expression
+dLrc
+dP = P
+−1 h
+(1n,k − P )⊤ W 1n,k − 1⊤
+n,kW P
+i
+− 1
+n 1n,k
+h
+P
+−1
+(1n,k − P )⊤W PP
+−⊤i
+This expression is particularly useful in the offline learning setting, especially when W is sparse, as it makes the
+computation graph more efficient due to the limited support of sparse gradients in major deep learning libraries.
+B.2 Online Gradient
+To compute the derivative of with respect to pi, we simply calculate the derivatives of 1
+p and (pi + pj − 2pipj)
+w.r.t pi which are:
+d
+dpi
+1
+p = − 1
+np2
+d
+dpi
+(pi + pj − 2pipj) = (1 − 2pj),
+respectively.
+By plugging these derivatives and considering the rule for the derivative of the product ( f g)′ = f ′g + f g′ of two
+functions f and g, the result in Equation (8) follows.
+C Reproducibility method
+C.1 Experiments setup
+In our sets of experiments, there are 2 variants:
+• Original representation space, where the PRCut algorithm is used to train a neural network that takes
+the original as input
+• SSL representation space , where the neural network takes as input the transformed dataset via a pre-
+trained self-supervised model
+C.1.1 Datasets
+We rely on the following datasets to benchmark our method:
+MNIST MNIST (Lecun et al., 1998) is a dataset consisting of 70,000 28x28 grayscale images of handwritten
+digits, which are split into training (60,000) and test (10,000) samples.
+Deep Clustering via Probabilistic Ratio-Cut Optimization
+F ashion MNIST Fashion-MNIST (Xiao et al., 2017) is a dataset of Zalando’s article images, comprising a
+training set of 60,000 examples and a test set of 10,000 examples. Each example is a 28x28 grayscale image linked
+to a label from 10 classes. Zalando designed Fashion-MNIST to be a direct substitute for the original MNIST
+dataset in benchmarking machine learning algorithms. However, it introduces more complexity to machine
+learning tasks due to the increased difficulty in classifying the samples.
+CIF AR The CIF AR-10 and CIF AR-100 datasets(Krizhevsky, 2009) is a widely used benchmark for image
+classification tasks in computer vision. It consists of 60,000 32x32 color images, divided into 100 classes, with
+600 images per class. The images are grouped into 20 superclasses.
+Key Characteristics: 60,000 images (50,000 for training and 10,000 for testing) 32x32 pixel resolution 100 classes,
+with 600 images per class 20 superclasses, grouping the 100 classes
+C.1.2 Encoder Architecture
+The encoder is a simple stack of linear layers followed each by a GeLU activation. The first layer and the last
+layer are always weight-normalized. The last activation is a softmax layer. The hidden unit used is constant
+across layers.
+C.1.3 Hyperparameters
+Table 5: Hyperparameters
+Hyperparameter Value
+β (moving average) 0.8
+γ (regularization weight) 100.0
+Optimizer original space RMSProp
+Optimizer representation space Adam
+Learning rate 10−4
+Weight decay 10−7
+k (k neighbors graph) 100

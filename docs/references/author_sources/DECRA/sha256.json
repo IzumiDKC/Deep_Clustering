@@ -1,0 +1,14 @@
+﻿[
+    {
+        "file":  "decra.py",
+        "sha256":  "ddfb905b4f49bc8b38c61e17032a1b05741438a63367a32170cbc2fca90c785e"
+    },
+    {
+        "file":  "LICENSE",
+        "sha256":  "2e2f9b9285da736e4306619e9c8816922dee04c66be0ac21e30a3e212ab96f01"
+    },
+    {
+        "file":  "utils.py",
+        "sha256":  "8480f46f44dba6491f5698cc755a6e750205156a32c1ac0a8d1d0d5103000ca5"
+    }
+]

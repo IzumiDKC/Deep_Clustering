@@ -1,0 +1,818 @@
+Deepk-Means: Jointly clustering with k-Means and
+learning representations
+Maziar Moradi Fard
+Univ. Grenoble Alpes, CNRS, Grenoble INP – LIG
+maziar.moradi-fard@univ-grenoble-alpes.fr
+Thibaut Thonet
+Univ. Grenoble Alpes, CNRS, Grenoble INP – LIG
+thibaut.thonet@univ-grenoble-alpes.fr
+Eric Gaussier
+Univ. Grenoble Alpes, CNRS, Grenoble INP – LIG, Skopai
+eric.gaussier@univ-grenoble-alpes.fr
+Abstract
+We study in this paper the problem of jointly clustering and learning representations.
+As several previous studies have shown, learning representations that are both
+faithful to the data to be clustered and adapted to the clustering algorithm can lead
+to better clustering performance, all the more so that the two tasks are performed
+jointly. We propose here such an approach for k-Means clustering based on a
+continuous reparametrization of the objective function that leads to a truly joint
+solution. The behavior of our approach is illustrated on various datasets showing
+its efﬁcacy in learning representations for objects while clustering them.
+1 Introduction
+Clustering is a long-standing problem in the machine learning and data mining ﬁelds, and thus
+accordingly fostered abundant research. Traditional clustering methods, e.g., k-Means [23] and
+Gaussian Mixture Models (GMMs) [6], fully rely on the original data representations and may then
+be ineffective when the data points ( e.g., images and text documents) live in a high-dimensional
+space – a problem commonly known as the curse of dimensionality. Signiﬁcant progress has been
+made in the last decade or so to learn better, low-dimensional data representations [13]. The most
+successful techniques to achieve such high-quality representations rely on deep neural networks
+(DNNs), which apply successive non-linear transformations to the data in order to obtain increasingly
+high-level features. Auto-encoders (AEs) are a special instance of DNNs which are trained to embed
+the data into a (usually dense and low-dimensional) vector at the bottleneck of the network, and then
+attempt to reconstruct the input based on this vector. The appeal of AEs lies in the fact that they are
+able to learn representations in a fully unsupervised way. The representation learning breakthrough
+enabled by DNNs spurred the recent development of numerous deep clustering approaches which
+aim at jointly learning the data points’ representations as well as their cluster assignments.
+In this study, we speciﬁcally focus on the k-Means-related deep clustering problem. Contrary
+to previous approaches that alternate between continuous gradient updates and discrete cluster
+assignment steps [ 32], we show here that one can solely rely on gradient updates to learn, truly
+jointly, representations and clustering parameters. This ultimately leads to a better deep k-Means
+method which is also more scalable as it can fully beneﬁt from the efﬁciency of stochastic gradient
+Preprint. Work in progress.
+arXiv:1806.10069v2  [cs.LG]  12 Dec 2018
+
+descent (SGD). In addition, we perform a careful comparison of different methods by (a) relying
+on the same auto-encoders, as the choice of auto-encoders impacts the results obtained, (b) tuning
+the hyperparameters of each method on a small validation set, instead of setting them without clear
+criteria, and (c) enforcing, whenever possible, that the same initialization and sequence of SGD
+minibatches are used by the different methods. The last point is crucial to compare different methods
+as these two factors play an important role and the variance of each method is usually not negligible.
+2 Related work
+In the wake of the groundbreaking results obtained by DNNs in computer vision, several deep
+clustering algorithms were speciﬁcally designed for image clustering [33, 8, 10, 15, 14]. These works
+have in common the exploitation of Convolutional Neural Networks (CNNs), which extensively
+contributed to last decade’s signiﬁcant advances in computer vision. Inspired by agglomerative
+clustering, [33] proposed a recurrent process which successively merges clusters and learn image
+representations based on CNNs. In [ 8], the clustering problem is formulated as binary pairwise-
+classiﬁcation so as to identify the pairs of images which should belong to the same cluster. Due
+to the unsupervised nature of clustering, the CNN-based classiﬁer in this approach is only trained
+on noisily labeled examples obtained by selecting increasingly difﬁcult samples in a curriculum
+learning fashion. [ 10] jointly trained a CNN auto-encoder and a multinomial logistic regression
+model applied to the AE’s latent space. Similarly, [ 14] alternate between representation learning
+and clustering where mini-batchk-Means is utilized as the clustering component. Differently from
+these works, [ 15] proposed an information-theoretic framework based on data augmentation to
+learn discrete representations, which may be applied to clustering or hash learning. Although these
+different algorithms obtained state-of-the-art results on image clustering [2], their ability to generalize
+to other types of data (e.g., text documents) is not guaranteed due to their reliance on essentially
+image-speciﬁc techniques – Convolutional Neural Network architectures and data augmentation.
+Nonetheless, many general-purpose – non-image-speciﬁc – approaches to deep clustering have also
+been recently designed [16, 27, 31, 9, 12, 15, 18, 19, 26, 32]. Generative models were proposed in
+[9, 19] which combine variational AEs and GMMs to perform clustering. Alternatively, [27, 26, 18]
+framed deep clustering as a subspace clustering problem in which the mapping from the original
+data space to a low-dimensional subspace is learned by a DNN. [31] deﬁned the Deep Embedded
+Clustering (DEC) method which simultaneously updates the data points’ representations, initialized
+from a pre-trained AE, and cluster centers. DEC uses soft assignments which are optimized to match
+stricter assignments through a Kullback-Leibler divergence loss. IDEC was subsequently proposed in
+[12] as an improvement to DEC by integrating the AE’s reconstruction error in the objective function.
+Few approaches were directly inﬂuenced by k-Means clustering [16, 32]. The Deep Embedding
+Network (DEN) model [16] ﬁrst learns representations from an AE while enforcing locality-preserving
+constraints and group sparsity; clusters are then obtained by simply applying k-Means to these
+representations. Yet, as representation learning is decoupled from clustering, the performance is
+not as good as the one obtained by methods that rely on a joint approach. Besides [14], mentioned
+before in the context of images, the only study, to our knowledge, that directly addresses the problem
+of jointly learning representations and clustering withk-Means (and not an approximation of it) is
+the Deep Clustering Network (DCN) approach [32]. However, as in [14], DCN alternatively learns
+(rather than jointly learns) the object representations, the cluster centroids and the cluster assignments,
+the latter being based on discrete optimization steps which cannot beneﬁt from the efﬁciency of
+stochastic gradient descent. The approach proposed here, entitled Deepk-Means (DKM), addresses
+this problem.
+3 Deep k-Means
+In the remainder, x denotes an object from a set X of objects to be clustered. Rp represents the
+space in which learned data representations are to be embedded. K is the number of clusters to
+be obtained, rk∈ Rp the representative of cluster k, 1≤ k≤ K, andR ={r1,..., rK} the set
+of representatives. Functions f andg deﬁne some distance in Rp which are assumed to be fully
+differentiable wrt their variables. For any vector y∈ Rp,cf (y;R) gives the closest representative of
+y according tof.
+2
+
+diagram_f.xmlhttps://www.draw.io/
+1 sur 1 17/05/2018 à 15:34
+Figure 1: Overview of the proposed Deep k-Means approach instantiated with losses based on the
+Euclidean distance.
+The deepk-Means problem takes the following form:
+min
+R,θ
+∑
+x∈X
+g(x,A (x;θ)) +λf (hθ(x),cf (hθ(x);R)),
+with: cf (hθ(x);R) = argmin
+r∈R
+f (hθ(x), r)
+(1)
+g measures the error between an object x and its reconstruction A(x;θ) provided by an auto-
+encoder,θ representing the set of the auto-encoder’s parameters. A regularization term on θ can
+be included in the deﬁnition of g. However, as most auto-encoders do not use regularization,
+we dispense with such a term here. hθ(x) denotes the representation of x in Rp output by the
+AE’s encoder part andf (hθ(x),cf (hθ(x);R)) is the clustering loss corresponding to thek-Means
+objective function in the embedding space. Finally,λ in Problem (1) regulates the trade-off between
+seeking good representations forx – i.e., representations that are faithful to the original examples –
+and representations that are useful for clustering purposes. Similar optimization problems can be
+formulated whenf andg are similarity functions or a mix of similarity and distance functions. The
+approach proposed here directly applies to such cases.
+Figure 1 illustrates the overall framework retained in this study with f andg both based on the
+Euclidean distance. The closeness term in the clustering loss will be further clariﬁed below.
+3.1 Continuous generalization of Deep k-Means
+We now introduce a parameterized version of the above problem that constitutes a continuous
+generalization, whereby we mean here that all functions considered are continuous wrt the intro-
+duced parameter.1 To do so, we ﬁrst note that the clustering objective function can be rewritten as
+f (hθ(x),cf (hθ(x);R)) =∑K
+k=1fk(hθ(x);R) with:
+fk(hθ(x);R) =
+{f (hθ(x), rk) if rk =cf (hθ(x);R)
+0 otherwise
+Let us now assume that we know some functionGk,f (hθ(x),α ;R) such that:
+(i) Gk,f is differentiable wrt toθ,R and continuous wrtα (differentiability wrtR means differen-
+tiability wrt to all dimensions of rk, 1≤k≤K);
+1Note that, independently from this work, a similar relaxation has been previously proposed in [1] – wherein
+soft-to-hard quantization is performed on an embedding space learned by an AE for compression. However,
+given the different nature of the goal here – clustering – our proposed learning framework substantially differs
+from theirs.
+3
+
+(ii)∃α0∈ R∪{−∞, +∞} such that:
+lim
+α→α0
+Gk,f (hθ(x),α ;R) =
+{1 if rk =cf (hθ(x);R)
+0 otherwise
+Then, one has,∀x∈X : lim
+α→α0
+f (hθ(x), rk)Gk,f (hθ(x),α ;R) = fk(hθ(x);R), showing that the
+problem in (1) is equivalent to:
+min
+R,θ
+lim
+α→α0
+F (X,α;θ,R)
+  
+∑
+x∈X
+g(x,A (x;θ)) + λ
+K∑
+k=1
+f (hθ(x), rk)Gk,f (hθ(x),α ;R) (2)
+All functions in the above formulation are fully differentiable wrt bothθ andR. One can thus estimate
+θ andR through a simple, joint optimization based on stochastic gradient descent (SGD) for a given
+α:
+(θ,R)← (θ,R)−η 1
+| ˜X|
+∇(θ,R)F ( ˜X,α ;θ,R) (3)
+withη the learning rate and ˜X a random mini-batch ofX .
+3.2 Choice of Gk,f
+Several choices are possible forGk,f . A simple choice, used throughout this study, is based on a
+parameterized softmax function. The fact that the softmax function can be used as a differentiable
+surrogate to argmax or argmin is well known and has been applied in different contexts, as in
+the recently proposed Gumbel-softmax distribution employed to approximate categorical samples
+[17, 24]. The parameterized softmax function which we adopted takes the following form:
+Gk,f (hθ(x),α ;R) = e−αf (hθ(x),rk)
+∑K
+k′=1e−αf (hθ(x),rk′ )
+(4)
+withα∈ [0, +∞). The function Gk,f deﬁned by Eq. 4 is differentiable wrtθ,R andα (condition
+(i)) as it is a composition of functions differentiable wrt these variables. Furthermore, one has:
+Property 3.1 (condition (ii)) If cf (hθ(x);R) is unique for all x∈X , then:
+lim
+α→+∞
+Gk,f (hθ(x),α ;R) =
+{1 if rk =cf (hθ(x);R)
+0 otherwise
+The proof, which is straightforward, is detailed in the Supplementary Material.
+The assumption thatcf (hθ(x);R) is unique for all objects is necessary forGk,f to take on binary
+values in the limit; it is not necessary to hold for small values ofα. In the unlikely event that the above
+assumption does not hold for some x and largeα, one can slightly perturbate the representatives
+equidistant tox prior to updating them. We have never encountered this situation in practice.
+Finally, Eq. 4 deﬁnes a valid (according to conditions (i) and (ii)) functionGk,f that can be used to
+solve the deepk-Means problem (2). We adopt this function in the remainder of this study.
+3.3 Choice of α
+The parameterα can be deﬁned in different ways. Indeed,α can play the role of an inverse temperature
+such that, whenα is 0, each data point in the embedding space is equally close, throughGk,f , to all
+the representatives (corresponding to a completely soft assignment), whereas when α is +∞, the
+assignment is hard. In the ﬁrst case, for the deep k-Means optimization problem, all representatives
+are equal and set to the point r∈ Rp that minimizes∑
+x∈Xf (hθ(x), r). In the second case, the
+solution corresponds to exactly performingk-Means in the embedding space, the latter being learned
+jointly with the clustering process. Following a deterministic annealing approach [28], one can start
+with a low value ofα (close to 0), and gradually increase it till a sufﬁciently large value is obtained.
+At ﬁrst, representatives are randomly initialized. As the problem is smooth when α is close to 0,
+4
+
+Algorithm 1: Deepk-Means algorithm
+Input: dataX , number of clustersK, balancing parameterλ, scheme forα, number of epochsT ,
+number of minibatchesN, learning rateη
+Output: autoencoder parametersθ, cluster representativesR
+Initializeθ and rk, 1≤k≤K (randomly or through pretraining)
+forα =mα toMα do # inverse temperature
+fort = 1 toT do # epochs per α
+forn = 1 toN do # minibatches
+Draw a minibatch ˜X⊂X
+Update (θ,R) using SGD (Eq. 3)
+end
+end
+end
+different initializations are likely to lead to the same local minimum in the ﬁrst iteration; this local
+minimum is used for the new values of the representatives for the second iteration, and so on. The
+continuity ofGk,f wrtα implies that, provided the increment inα is not too important, one evolves
+smoothly from the initial local minimum to the last one. In the above deterministic annealing scheme,
+α allows one to initialize cluster representatives. The initialization of the auto-encoder can as well
+have an important impact on the results obtained and prior studies (e.g., [16, 31, 12, 32]) have relied
+on pretraining for this matter. In such a case, one can choose a high value for α to directly obtain
+the behavior of thek-Means algorithm in the embedding space after pretraining. We evaluate both
+approaches in our experiments.
+Algorithm 1 summarizes the deepk-Means algorithm for the deterministic annealing scheme, where
+mα (respectivelyMα) denote the minimum (respectively maximum) value ofα, andT is the number
+of epochs per each value ofα for the stochastic gradient updates. Even thoughMα is ﬁnite, it can be
+set sufﬁciently large to obtain in practice a hard assignment to representatives. Alternatively, when
+using pretraining, one setsmα =Mα (i.e., a constantα is used).
+3.4 Shrinking phenomenon
+The loss functions deﬁned in 1 and 2 – as well as the loss used in the DCN approach [ 32] and
+potentially in other approaches – might in theory induce a degenerative behavior in the learning
+procedure. Indeed, the clustering loss could be made arbitrarily small while preserving the recon-
+struction capacity of the AE by “shrinking” the subspace where the object embeddings and the cluster
+representatives live – thus reducing the distance between embeddings and representatives. We tested
+L2 regularization on the auto-encoder parameters to alleviate this potential issue by preventing the
+weights from arbitrarily shrinking the embedding space (indeed, by symmetry of the encoder and
+decoder, having small weights in the encoder, leading to shrinking, requires having large weights in
+the decoder for reconstruction; L2 regularization penalizes such large weights). We have however not
+observed any difference in our experiments with the case where no regularization is used, showing
+that the shrinking problem may not be important in practice. For the sake of simplicity, we dispense
+with it in the remainder.
+4 Experiments
+In order to evaluate the clustering results of our approach, we conducted experiments on different
+datasets and compared it against state-of-the-art standard andk-Means-related deep clustering models.
+4.1 Datasets
+The datasets used in the experiments are standard clustering benchmark collections. We considered
+both image and text datasets to demonstrate the general applicability of our approach. Image datasets
+consist of MNIST (70,000 images, 28× 28 pixels, 10 classes) and USPS (9,298 images, 16× 16
+pixels, 10 classes) which both contain hand-written digit images. We reshaped the images to one-
+5
+
+dimensional vectors and normalized the pixel intensity levels (between 0 and 1 for MNIST, and
+between -1 and 1 for USPS). The text collections we considered are the 20 Newsgroups dataset
+(hereafter, 20NEWS) and the RCV1-v2 dataset (hereafter, RCV1). For 20NEWS, we used the whole
+dataset comprising 18,846 documents labeled into 20 different classes. Similarly to [ 31, 12], we
+sampled from the full RCV1-v2 collection a random subset of 10,000 documents, each of which
+pertains to only one of the four largest classes. Because of the text datasets’ sparsity, and as proposed
+in [31], we selected the 2000 words with the highest tf-idf values to represent each document.
+4.2 Baselines and deep k-Means variants
+Clustering models may use different strategies and different clustering losses, leading to different
+properties. As our goal in this work is to study thek-Means clustering algorithm in embedding spaces,
+we focus on the family ofk-Means-related models and compare our approach against state-of-the-art
+models from this family, using both standard and deep clustering models. For the standard clustering
+methods, we used: the k-Means clustering approach [ 23] with initial cluster center selection [ 3],
+denoted KM; an approach denoted as AE-KM in which dimensionality reduction is ﬁrst performed
+using an auto-encoder followed byk-Means applied to the learned representations.2 We compared as
+well against the only previous, “true” deep clusteringk-Means-related method, the Deep Clustering
+Network (DCN) approach described in [32]. DCN is, to the best of our knowledge, the current most
+competitive clustering algorithm amongk-Means-related models.
+In addition, we consider here the Improved Deep Embedded Clustering (IDEC) model [ 12] as an
+additional baseline. IDEC is a general-purpose state-of-the-art approach in the deep clustering family.
+It is an improved version of the DEC model [31] and thus constitutes a strong baseline. For both DCN
+and IDEC, we studied two variants: with pretraining (DCNp and IDECp) and without pretraining
+(DCNnp and IDECnp). The pretraining we performed here simply consists in initializing the weights
+by training the auto-encoder on the data to minimize the reconstruction loss in an end-to-end fashion –
+greedy layer-wise pretraining [4] did not lead to improved clustering in our preliminary experiments.
+The proposed Deep k-Means (DKM) is, as DCN, a “true” k-Means approach in the embedding
+space; it jointly learns AE-based representations and relaxes thek-Means problem by introducing
+a parameterized softmax as a differentiable surrogate to k-Means argmin. In the experiments, we
+considered two variants of this approach. DKMa implements an annealing strategy for the inverse
+temperatureα and does not rely on pretraining. The scheme we used for the evolution of the inverse
+temperatureα in DKMa is given by the following recursive sequence:αn+1 = 2 1/ log(n)2
+×αn with
+mα =α1 = 0.1. The rationale behind the choice of this scheme is that we want α to spend more
+iterations on smaller values and less on larger values while preserving a gentle slope. Alternatively,
+we studied the variant DKMp which is initialized by pretraining an auto-encoder and then follows
+Algorithm 1 with a constantα such thatmα =Mα = 1000. Such a highα is equivalent to having
+hard cluster assignments while maintaining the differentiability of the optimization problem.
+Implementation details. For IDEC, we used the Keras code shared by their authors. 3 Our own
+code for DKM is based on TensorFlow. To enable full control of the comparison between DCN and
+DKM – DCN being the closest competitor to DKM – we also re-implemented DCN in TensorFlow.
+The code for both DKM and DCN is available online.4
+Choice off andg. The functionsf andg in Problem (1) deﬁne which distance functions is used
+for the clustering loss and reconstruction error, respectively. In this study, bothf andg are simply
+instantiated with the Euclidean distance on all datasets. For the sake of comprehensiveness, we report
+in the supplementary material results for the cosine distance on 20NEWS.
+2We did not consider variational auto-encoders [21] in our baselines as [19] previously compared variational
+AE + GMM and “standard” AE + GMM, and found that the latter consistently outperformed the former.
+3https://github.com/XifengGuo/IDEC-toy. We used this version instead of https://github.com/
+XifengGuo/IDEC as only the former enables auto-encoder pretraining in a non-layer-wise fashion.
+4https://github.com/MaziarMF/deep-k-means
+6
+
+4.3 Experimental setup
+Auto-encoder description and training details. The auto-encoder we used in the experiments
+is the same across all datasets and is borrowed from previous deep clustering studies [ 31, 12]. Its
+encoder is a fully-connected multilayer perceptron with dimensions d-500-500-2000-K, whered
+is the original data space dimension and K is the number of clusters to obtain. The decoder is a
+mirrored version of the encoder. All layers except the one preceding the embedding layer and the one
+preceding the output layer are applied a ReLU activation function [25] before being fed to the next
+layer. For the sake of simplicity, we did not rely on any complementary training or regularization
+strategies such as batch normalization or dropout. The auto-encoder weights are initialized following
+the Xavier scheme [ 11]. For all deep clustering approaches, the training is based on the Adam
+optimizer [20] with standard learning rateη = 0.001 and momentum ratesβ1 = 0.9 andβ2 = 0.999.
+The minibatch size is set to 256 on all datasets following [12]. We emphasize that we chose exactly
+the same training conﬁguration for all models to facilitate a fair comparison.
+The number of pretraining epochs is set to 50 for all models relying on pretraining. The number of
+ﬁne-tuning epochs for DCN p and IDECp is ﬁxed to 50 (or equivalently in terms of iterations: 50
+times the number of minibatches). We set the number of training epochs for DCNnp and IDECnp to
+200. For DKMa, we used the 40 terms of the sequenceα described in Section 4.2 as the annealing
+scheme and performed 5 epochs for eachα term (i.e., 200 epochs in total). DKMp is ﬁne-tuned by
+performing 100 epochs with constantα = 1000. The cluster representatives are initialized randomly
+from a uniform distribution U (−1, 1) for models without pretraining. In case of pretraining, the
+cluster representatives are initialized by applyingk-Means to the pretrained embedding space.
+Hyperparameter selection. The hyperparameters λ for DCN and DKM and γ for IDEC, that
+deﬁne the trade-off between the reconstruction and the clustering error in the loss function, were
+determined by performing a line search on the set{10i|i∈ [−4, 3]}. To do so, we randomly split
+each dataset into a validation set (10% of the data) and a test set (90%). Each model is trained
+on the whole data and only the validation set labels are leveraged in the line search to identify the
+optimalλ orγ (optimality is measured with respect to the clustering accuracy metric). We provide
+the validation-optimalλ andγ obtained for each model and dataset in the supplementary material.
+The performance reported in the following sections corresponds to the evaluation performed only on
+the held-out test set.
+While one might argue that such procedure affects the unsupervised nature of the clustering ap-
+proaches, we believe that a clear and transparent hyperparameter selection methodology is preferable
+to a vague or hidden one. Moreover, although we did not explore such possibility in this study, it
+might be possible to deﬁne this trade-off hyperparameter in a data-driven way.
+Experimental protocol. We observed in pilot experiments that the clustering performance of the
+different models is subject to non-negligible variance from one run to another. This variance is due to
+the randomness in the initialization and in the minibatch sampling for the stochastic optimizer. When
+pretraining is used, the variance of the general pretraining phase and that of the model-speciﬁc ﬁne-
+tuning phase add up, which makes it difﬁcult to draw any conﬁdent conclusion about the clustering
+ability of a model. To alleviate this issue, we compared the different approaches using seeded runs
+whenever this was possible. This has the advantage of removing the variance of pretraining as seeds
+guarantee exactly the same results at the end of pretraining (since the same pretraining is performed
+for the different models). Additionally, it ensures that the same sequence of minibatches will be
+sampled. In practice, we used seeds for the models implemented in TensorFlow (KM, AE-KM, DCN
+and DKM). Because of implementation differences, seeds could not give the same pretraining states
+in the Keras-based IDEC. All in all, we randomly selected 10 seeds and for each model performed one
+run per seed. Additionally, to account for the remaining variance and to report statistical signiﬁcance,
+we performed a Student’st-test from the 10 collected samples (i.e., runs).
+4.4 Clustering results
+The results for the evaluation of thek-Means-related clustering methods on the different benchmark
+datasets are summarized in Table 1. The clustering performance is evaluated with respect to two
+standard measures [7]: Normalized Mutual Information (NMI) and the clustering accuracy (ACC).
+We report for each dataset/method pair the average and standard deviation of these metrics computed
+7
+
+Table 1: Clustering results of thek-Means-related methods. Performance is measured in terms of
+NMI and ACC (%); higher is better. Each cell contains the average and standard deviation computed
+over 10 runs. Bold (resp. underlined) values correspond to results with no signiﬁcant difference
+(p> 0.05) to the best approach with (resp. without) pretraining for each dataset/metric pair.
+Model MNIST USPS 20NEWS RCV1
+ACC NMI ACC NMI ACC NMI ACC NMI
+KM 53.5 ±0.3 49.8±0.5 67.3±0.1 61.4±0.1 23.2±1.5 21.6±1.8 50.8±2.9 31.3±5.4
+AE-KM 80.8±1.8 75.2±1.1 72.9±0.8 71.7±1.2 49.0±2.9 44.5±1.5 56.7±3.6 31.5±4.3
+Deep clustering approaches without pretraining
+DCNnp 34.8±3.0 18.1±1.0 36.4±3.5 16.9±1.3 17.9±1.0 9.8 ±0.5 41.3 ±4.0 6.9 ±1.8
+DKMa 82.3±3.2 78.0±1.9 75.5±6.8 73.0±2.3 44.8±2.4 42.8±1.1 53.8±5.5 28.0±5.8
+Deep clustering approaches with pretraining
+DCNp 81.1±1.9 75.7±1.1 73.0±0.8 71.9±1.2 49.2±2.9 44.7±1.5 56.7±3.6 31.6±4.3
+DKMp 84.0±2.2 79.6±0.9 75.7±1.3 77.6±1.1 51.2±2.8 46.7±1.2 58.3±3.8 33.1±4.9
+Table 2: Clustering results of the DKM and IDEC methods. Performance is measured in terms of
+NMI and ACC (%); higher is better. Each cell contains the average and standard deviation computed
+over 10 runs. Bold (resp. underlined) values correspond to results with no signiﬁcant difference
+(p> 0.05) to the best approach with (resp. without) pretraining for each dataset/metric pair.
+Model MNIST USPS 20NEWS RCV1
+ACC NMI ACC NMI ACC NMI ACC NMI
+Deep clustering approaches without pretraining
+IDECnp 61.8±3.0 62.4±1.6 53.9±5.1 50.0±3.8 22.3±1.5 22.3±1.5 56.7±5.3 31.4±2.8
+DKMa 82.3±3.2 78.0±1.9 75.5±6.8 73.0±2.3 44.8±2.4 42.8±1.1 53.8±5.5 28.0±5.8
+Deep clustering approaches with pretraining
+IDECp 85.7±2.4 86.4±1.0 75.2±0.5 74.9±0.6 40.5±1.3 38.2±1.0 59.5±5.7 34.7±5.0
+DKMp 84.0±2.2 79.6±0.9 75.7±1.3 77.6±1.1 51.2±2.8 46.7±1.2 58.3±3.8 33.1±4.9
+over 10 runs and conduct signiﬁcance testing as previously described in the experimental protocol.
+The bold (resp. underlined) values in each column of Table 1 correspond to results with no statis-
+tically signiﬁcant difference (p >0.05) to the best result with (resp. without) pretraining for the
+corresponding dataset/metric.
+We ﬁrst observe that when no pretraining is used, DKM with annealing (DKMa) markedly outperforms
+DCNnp on all datasets. DKMa achieves clustering performance similar to that obtained by pretraining-
+based methods. This conﬁrms our intuition that the proposed annealing strategy can be seen as an
+alternative to pretraining.
+Among the approaches integrating representation learning with pretraining, the AE-KM method, that
+separately performs dimension reduction andk-Means clustering, overall obtains the worst results.
+This observation is in line with prior studies [32, 12] and underlines again the importance of jointly
+learning representations and clustering. We note as well that, apart from DKMa, pretraining-based
+deep clustering approaches substantially outperform their non-pretrained counterparts, which stresses
+the importance of pretraining.
+Furthermore, DKMp yields signiﬁcant improvements on all collections except RCV1 over DCN p,
+the other “true” deepk-Means approach. In all cases, DCN p shows performance on par with that
+of AE-KM. This places, to the best of our knowledge, DKM p as the current best deep k-Means
+clustering method.
+To further conﬁrm DKM’s efﬁcacy, we also compare it against IDEC, a state-of-the-art deep clustering
+algorihm which is not based onk-Means. We report the corresponding results in Table 2. Once again,
+DKMa signiﬁcantly outperforms its non-pretrained counterpart, IDECnp, except on RCV1. We note as
+well that, with the exception of the NMI results on MNIST, DKMp is always either signiﬁcantly better
+8
+
+40
+ 30
+ 20
+ 10
+ 0 10 20 30
+40
+30
+20
+10
+0
+10
+20
+30
+40
+(a) AE
+40
+ 30
+ 20
+ 10
+ 0 10 20 30 40
+30
+20
+10
+0
+10
+20
+30
+40 (b) DCN p
+30
+ 20
+ 10
+ 0 10 20 30 40
+40
+30
+20
+10
+0
+10
+20
+30
+40 (c) DKM a
+30
+ 20
+ 10
+ 0 10 20 30 40
+30
+20
+10
+0
+10
+20
+30 (d) DKM p
+Figure 2: t-SNE visualization of the embedding spaces learned on USPS.
+than IDECp or with no signiﬁcant difference from this latter. This shows that the proposed DKM is
+not only the strongestk-Means-related clustering approach, but is also remarkably competitive wrt
+deep clustering state of the art.
+4.5 Illustration of learned representations
+While the quality of the clustering results and that of the representations learned by the models are
+likely to be correlated, it is relevant to study to what extent learned representations are distorted
+to facilitate clustering. To provide a more interpretable view of the representations learned by k-
+means-related deep clustering algorithm, we illustrate the embedded samples provided by AE (for
+comparison), DCNp, DKMa, and DKMp on USPS in Figure 2 (best viewed in color). DCN np was
+discarded due to its poor clustering performance. We used for that matter thet-SNE visualization
+method [29] to project the embeddings into a 2D space. We observe that the representations for points
+from different clusters are clearly better separated and disentangled in DKMp than in other models.
+This brings further support to our experimental results, which showed the superior ability of DKMp
+to learn representations that facilitate clustering.
+5 Conclusion
+We have presented in this paper a new approach for jointly clustering with k-Means and learning
+representations by considering thek-Means clustering loss as the limit of a differentiable function.
+To the best of our knowledge, this is the ﬁrst approach that truly jointly optimizes, through simple
+stochastic gradient descent updates, representation and k-Means clustering losses. In addition to
+pretraining, that can be used in all methods, this approach can also rely on a deterministic annealing
+scheme for parameter initialization.
+We further conducted careful comparisons with previous approaches by ensuring that the same
+architecture, initialization and minibatches are used. The experiments conducted on several datasets
+conﬁrm the good behavior of Deepk-Means that outperforms DCN, the current best approach for
+k-Means clustering in embedding spaces, on all the collections considered.
+Acknowledgments
+Funding: This work was supported by the French National Agency for Research through the LOCUST
+project [grant number ANR-15-CE23-0027]; France’s Auvergne-Rhône-Alpes region through the
+AISUA project [grant number 17011072 01 - 4102]. Declarations of interest: none.
+References
+[1] E. Agustsson, F. Mentzer, M. Tschannen, L. Cavigelli, R. Timofte, L. Benini, and L. Van Gool. Soft-
+to-Hard Vector Quantization for End-to-End Learning Compressible Representations. In Proceedings of
+NIPS, NIPS ’17, pages 1141–1151, 2017.
+[2] E. Aljalbout, V . Golkov, Y . Siddiqui, and D. Cremers. Clustering with Deep Learning: Taxonomy and New
+Methods. arXiv:1801.07648, 2018.
+[3] D. Arthur and S. Vassilvitskii. K-Means++: The Advantages of Careful Seeding. In Proceedings of SODA,
+SODA ’07, pages 1027–1025, 2007.
+9
+
+[4] Y . Bengio, P. Lamblin, D. Popovici, and H. Larochelle. Greedy Layer-Wise Training of Deep Networks.
+In Proceedings of NIPS, NIPS ’06, pages 153–160, 2006.
+[5] J. C. Bezdek, R. Ehrlich, and W. Full. FCM: The Fuzzy c-Means Clustering Algorithm. Computers &
+Geosciences, 10(2-3):191–203, 1984.
+[6] C. M. Bishop. Pattern Recognition and Machine Learning. Springer, 2006.
+[7] D. Cai, X. He, and J. Han. Locally Consistent Concept Factorization for Document Clustering. IEEE
+Transactions on Knowledge and Data Engineering , 23(6):902–913, 2011.
+[8] J. Chang, L. Wang, G. Meng, S. Xiang, and C. Pan. Deep Adaptive Image Clustering. In Proceedings of
+ICCV, ICCV ’17, pages 5879–5887, 2017.
+[9] N. Dilokthanakul, P. A. M. Mediano, M. Garnelo, M. C. H. Lee, H. Salimbeni, K. Arulkumaran,
+and M. Shanahan. Deep Unsupervised Clustering with Gaussian Mixture Variational Autoencoders.
+arXiv:1611.02648, 2017.
+[10] K. G. Dizaji, A. Herandi, C. Deng, W. Cai, and H. Huang. Deep Clustering via Joint Convolutional
+Autoencoder Embedding and Relative Entropy Minimization. In Proceedings of ICCV, ICCV ’17, pages
+5736–5745, 2017.
+[11] X. Glorot and Y . Bengio. Understanding the Difﬁculty of Training Deep Feedforward Neural Networks. In
+Proceedings of AISTATS, AISTATS ’10, 2010.
+[12] X. Guo, L. Gao, X. Liu, and J. Yin. Improved Deep Embedded Clustering with Local Structure Preservation.
+In Proceedings of IJCAI, IJCAI ’17, pages 1753–1759, 2017.
+[13] G. E. Hinton and R. R. Salakhutdinov. Reducing the Dimensionality of Data with Neural Networks.
+Science, 313(5786):504–507, 2006.
+[14] C.-C. Hsu and C.-W. Lin. CNN-Based Joint Clustering and Representation Learning with Feature Drift
+Compensation for Large-Scale Image Data. IEEE Transactions on Multimedia, 20(2):421–429, 2018.
+[15] W. Hu, T. Miyato, S. Tokui, E. Matsumoto, and M. Sugiyama. Learning Discrete Representations via
+Information Maximizing Self-Augmented Training. In Proceedings of ICML, ICML ’17, pages 1558–1567,
+2017.
+[16] P. Huang, Y . Huang, W. Wang, and L. Wang. Deep Embedding Network for Clustering. InProceedings of
+ICPR, ICPR ’14, pages 1532–1537, 2014.
+[17] E. Jang, S. Gu, and B. Poole. Categorical Reparameterization with Gumbel-Softmax. In Proceedings of
+ICLR, ICLR ’17, 2017.
+[18] P. Ji, T. Zhang, H. Li, M. Salzmann, and I. Reid. Deep Subspace Clustering Networks. In Proceedings of
+NIPS, NIPS ’17, pages 23–32, 2017.
+[19] Z. Jiang, Y . Zheng, H. Tan, B. Tang, and H. Zhou. Variational Deep Embedding: An Unsupervised and
+Generative Approach to Clustering. In Proceedings of IJCAI, IJCAI ’17, pages 1965–1972, 2017.
+[20] D. P. Kingma and J. L. Ba. Adam: a Method for Stochastic Optimization. In Proceedings of ICLR, ICLR
+’15, 2015.
+[21] D. P. Kingma and M. Welling. Auto-Encoding Variational Bayes. In Proceedings of ICLR, ICLR ’14,
+2014.
+[22] H. W. Kuhn. The Hungarian Method for the Assignment Problem. Naval Research Logistics Quarterly,
+2(1-2):83–97, 1955.
+[23] J. MacQueen. Some Methods for Classiﬁcation and Analysis of Multivariate Observations. In Proceedings
+of Berkeley Symposium on Mathematical Statistics and Probability , pages 281–297, 1967.
+[24] C. J. Maddison, A. Mnih, and Y . W. Teh. The Concrete Distribution: A Continuous Relaxation of Discrete
+Random Variables. In Proceedings of ICLR, ICLR ’17, 2017.
+[25] V . Nair and G. E. Hinton. Rectiﬁed Linear Units Improve Restricted Boltzmann Machines. In Proceedings
+of ICML, ICML ’10, pages 807–814, 2010.
+[26] X. Peng, J. Feng, J. Lu, W.-y. Yau, and Z. Yi. Cascade Subspace Clustering. In Proceedings of AAAI,
+AAAI ’17, pages 2478–2484, 2017.
+[27] X. Peng, S. Xiao, J. Feng, W. Y . Yau, and Z. Yi. Deep Subspace Clustering with Sparsity Prior. In
+Proceedings of IJCAI, IJCAI ’16, pages 1925–1931, 2016.
+[28] K. Rose, E. Gurewitz, and G. Fox. A Deterministic Annealing Approach to Clustering.Pattern Recognition
+Letters, 11(9):589–594, 1990.
+[29] L. van der Maaten and G. Hinton. Visualizing Data using t-SNE. Journal of Machine Learning Research,
+9:2579–2605, 2008.
+10
+
+[30] N. X. Vinh, J. Epps, and J. Bailey. Information Theoretic Measures for Clusterings Comparison: Variants,
+Properties, Normalization and Correction for Chance. Journal of Machine Learning Research, 11:2837–
+2854, 2010.
+[31] J. Xie, R. Girshick, and A. Farhadi. Unsupervised Deep Embedding for Clustering Analysis. InProceedings
+of ICML, ICML ’16, pages 478–487, 2016.
+[32] B. Yang, X. Fu, N. D. Sidiropoulos, and M. Hong. Towards K-means-friendly Spaces: Simultaneous Deep
+Learning and Clustering. In Proceedings of ICML, ICML ’17, pages 3861–3870, 2017.
+[33] J. Yang, D. Parikh, and D. Batra. Joint Unsupervised Learning of Deep Representations and Image Clusters.
+In Proceedings of CVPR, CVPR ’16, pages 5147–5156, 2016.
+A Proof of Property 1
+ForGk,f (hθ(x),α ;R) = e−αf (hθ (x),rk)
+∑K
+k′=1e−αf (hθ (x),rk′ ) , we remind the following property:
+Property A.1 (condition (ii)) If cf (hθ(x);R) is unique for all x∈X , then:
+lim
+α→+∞
+Gk,f (hθ(x),α ;R) =
+{
+1 if rk =cf (hθ(x);R)
+0 otherwise
+Proof: Let rj =cf (hθ(x);R) and let us assume thatf is a distance. One has:
+K∑
+k′=1
+e−αf (hθ (x),rk′ ) =e−αf (hθ (x),rj )×
+
+1 +
+∑
+k′̸=j
+e−α(f (hθ (x),rk′ )−f (hθ (x),rj ))
+
+
+Asf (hθ(x), rj)<f (hθ(x), rk′ ),∀k′̸=j, one has:
+lim
+α→+∞
+e−α(f (hθ (x),rk′ )−f (hθ (x),rj )) = 0
+Thus lim
+α→+∞
+Gk,f (hθ(x),α ;R) = 0 ifk̸=j and 1 ifk =j. □
+B Alternative choice for Gk,f
+AsGk,f (hθ(x),α ;R) plays the role of a closeness function for an objectx wrt representative rk, membership
+functions used in fuzzy clustering are potential candidates forGk,f . In particular, the membership function of
+the fuzzyC-Means algorithm [5] is a valid candidate according to conditions (i) and (ii). It takes the following
+form:
+Gk,f (hθ(x),α ;R) =
+( K∑
+k′=1
+(f (hθ(x), rk)
+f (hθ(x), rk′ )
+) 2
+α−1
+)−1
+withα deﬁned on (1; +∞) andα0 (condition (ii)) equal to 1. However, in addition to being slightly more
+complex than the parametrized softmax, this formulation presents the disadvantage that it may be undeﬁned
+when a representative coincides with an object; another assumption (in addition to the uniqueness assumption) is
+required here to avoid such a case.
+C Annealing scheme for α in DKMa
+The scheme we used for the evolution of the inverse temperatureα in DKMa is given by the following recursive
+sequence:αn+1 = 2 1/ log(n)2
+×αn withmα =α1 = 0.1. The 40 ﬁrst terms of (αn) are plotted in Figure 3.
+D Evaluation measures
+In our experiments, the clustering performance of the evaluated methods is evaluated with respect to two
+standard measures [7]: Normalized Mutual Information (NMI) and the clustering accuracy (ACC). NMI is an
+information-theoretic measure based on the mutual information of the ground-truth classes and the obtained
+clusters, normalized using the entropy of each. Formally, let S ={S1,...,S K} andC ={C1,...,C K}
+denote the ground-truth classes and the obtained clusters, respectively.Si (resp.Cj) is the subset of data points
+11
+
+0 5 10 15 20 25 30 35 40
+0
+5
+10
+15
+20
+25
+30
+n
+αn
+Figure 3: Annealing scheme for inverse temperatureα, following the sequenceαn+1 = 2 1/ log(n)2
+×
+αn;α1 = 0.1.
+from classi (resp. clusterj). LetN be the number of points in the dataset. The NMI is computed according to
+the following formula:
+NMI(C,S ) = I(C,S )√
+H(C)×H(S)
+whereI(C,S ) =∑
+i,j
+|Ci∩Sj|
+N log
+N|Ci∩Sj|
+|Ci||Sj| corresponds to the mutual information between the partitionsC
+andS, andH(C) =−∑
+i
+|Ci|
+N log|Ci|
+N is the entropy ofC.
+On the other hand, ACC measures the proportion of data points for which the obtained clusters can be correctly
+mapped to ground-truth classes, where the matching is based on the Hungarian algorithm [ 22]. Let si and
+ci further denote the ground-truth class and the obtained cluster, respectively, to which data point xi, i∈
+{1,...,N } is assigned. Then the clustering accuracy is deﬁned as follows:
+ACC(C,S ) = max
+φ
+1
+N
+N∑
+i=1
+I{si =φ(ci)}
+where I denotes the indicator function: I{true} = 1 and I{false} = 0 ;φ is a mapping from cluster labels to
+class labels.
+We additionally report in this supplementary material the clustering performance wrt to the adjusted Rand index
+(ARI) [30]. ARI counts the pairs of data points on which the classes and clusters agree or disagree, and is
+corrected for chance. Formally, ARI is given by:
+ARI(C,S ) =
+∑
+ij
+(|Ci∩Sj|
+2
+)
+−
+(N
+2
+)−1∑
+i
+(|Ci|
+2
+)∑
+j
+(|Sj|
+2
+)
+1
+2
+(∑
+i
+(|Ci|
+2
+)
++∑
+j
+(|Sj|
+2
+))
+−
+(N
+2
+)−1∑
+i
+(|Ci|
+2
+)∑
+j
+(|Sj|
+2
+)
+E Dataset statistics and optimal hyperparameters
+We summarize in Table 3 the statistics of the different datasets used in the experiments, as well as the dataset-
+speciﬁc optimal values of the hyperparameter (λ for DKM-based and DCN-based methods andγ for IDEC-based
+ones) which trades off between the reconstruction loss and the clustering loss. We remind that this optimal value
+was determined using a validation set, disjoint from the test set on which we reported results in the paper.
+12
+
+Table 3: Statistics of the datasets and dataset-speciﬁc optimal trade-off hyperparameters ( λ for
+DKM-based and DCN-based methods andγ for IDEC-based ones) determined on the validation set.
+Dataset MNIST USPS 20NEWS RCV1
+#Samples 70,000 9,298 18,846 10,000
+#Classes 10 10 20 4
+Dimensions 28 × 28 16 × 16 2,000 2,000
+λDKMa 1e-1 1e-1 1e-4 1e-4
+λDKMp 1e+0 1e+0 1e-1 1e-2
+λDCNp 1e+1 1e-1 1e-1 1e-1
+λDCNnp 1e-2 1e-1 1e-4 1e-3
+γIDECp 1e-2 1e-3 1e-1 1e-3
+γIDECnp 1e-3 1e-1 1e-3 1e-4
+Table 4: Clustering results of thek-Means-related methods. Performance is measured in terms of
+ARI (%); higher is better. Each cell contains the average and standard deviation computed over 10
+runs. Bold (resp. underlined) values correspond to results with no signiﬁcant difference (p> 0.05) to
+the best approach with (resp. without) pretraining for each dataset/metric pair.
+Model MNIST USPS 20NEWS RCV1
+KM 36.6 ±0.1 53.5 ±0.1 7.6 ±0.9 20.6±2.8
+AE-KM 69.4 ±1.8 63.2±1.5 31.0 ±1.6 23.9±4.3
+Deep clustering approaches without pretraining
+DCNnp 15.6±1.1 14.7 ±1.8 5.7 ±0.5 6.9 ±2.1
+DKMa 73.6±3.1 66.3±4.9 26.7±1.5 20.7±4.4
+Deep clustering approaches with pretraining
+DCNp 70.2±1.8 63.4±1.5 31.3 ±1.6 24.0±4.3
+DKMp 75.0±1.8 68.5±1.8 33.9 ±1.5 26.5 ±4.9
+F Additional results
+The additional results given in this section have also been computed from 10 seeded runs whenever possible and
+Student’st-test was performed from those 10 samples.
+F .1 ARI results
+We report in Table 4 the results obtained byk-Means-related methods wrt the ARI measure on the datasets used
+in the paper. Similarly, Table 5 compares the results of the approaches based on DKM and IDEC in terms of
+ARI.
+F .2 Cosine distance
+The proposed Deepk-Means framework enables the use of different distance and similarity functions to compute
+the AE’s reconstruction error (based on functiong) and the clustering loss (based on functionf). In the paper,
+we adopted the euclidean distance for bothf andg. For the sake of comprehensiveness, we performed additional
+experiments on DKM using different such functions. In particular, we showcase in Table 6 the results obtained
+by choosing the cosine distance forf and the euclidean distance forg (DKMa
+ce and DKMp
+ce) in comparison to
+using euclidean distance for bothf andg (DKMa
+ee and DKMp
+ee) – these latter corresponding to the approaches
+reported in the paper. Note that for DKMa
+ce and DKMp
+ce as well the reported results correspond to those obtained
+with the optimal lambda determined on the validation set.
+F .3 k-Means-friendliness of learned representations
+In addition to the previous experiments – which evaluate the clustering ability of the different approaches – we
+analyzed how effective applyingk-Means to the representations learned by DCN p, DKMa, and DKMp is in
+13
+
+Table 5: Clustering results of the DKM and IDEC methods. Performance is measured in terms of
+ARI (%); higher is better. Each cell contains the average and standard deviation computed over 10
+runs. Bold (resp. underlined) values correspond to results with no signiﬁcant difference (p> 0.05) to
+the best approach with (resp. without) pretraining for each dataset/metric pair.
+Model MNIST USPS 20NEWS RCV1
+Deep clustering approaches without pretraining
+IDECnp 49.1±3.0 40.2 ±5.1 9.8 ±1.5 28.5±5.3
+DKMa 73.6±3.1 66.3±4.9 26.7±1.5 20.7 ±4.4
+Deep clustering approaches with pretraining
+IDECp 81.5±2.4 68.1±0.5 26.0±1.3 32.9±5.7
+DKMp 75.0±1.8 68.5±1.8 33.9 ±1.5 26.5±4.9
+Table 6: Clustering results for DKM using the euclidean and cosine distances on 20NEWS. Each
+cell contains the average and standard deviation computed over 10 runs. Bold values correspond to
+results with no signiﬁcant difference (p> 0.05) to the best for each dataset/metric pair..
+Model ACC NMI ARI
+f = euclidean distance,g = euclidean distance
+DKMa
+ee 44.8±2.4 42.8 ±1.1 26.7 ±1.5
+DKMp
+ee 51.2±2.8 46.7 ±1.2 33.9 ±1.5
+f = cosine distance,g = euclidean distance
+DKMa
+ce 51.3±1.5 44.4±0.7 32.6 ±1.0
+DKMp
+ce 51.0±2.6 45.1±1.2 33.0±1.1
+Table 7: Clustering results fork-Means applied to different learned embedding spaces to measure
+thek-Means-friendliness of each method. Performance is measured in terms of NMI and clustering
+accuracy (%), averaged over 10 runs with standard deviation. Bold values correspond to results with
+no signiﬁcant difference (p> 0.05) to the best for each dataset/metric.
+Model MNIST USPS 20NEWS RCV1
+ACC NMI ACC NMI ACC NMI ACC NMI
+AE-KM 80.8 ±1.8 75.2±1.1 72.9±0.8 71.7±1.2 49.0±2.9 44.5±1.5 56.7±3.6 31.5±4.3
+DCNp + KM 84.9±3.1 79.4±1.5 73.9±0.7 74.1±1.1 50.5±3.1 46.5±1.6 57.3±3.6 32.3±4.4
+DKMa + KM 84.8±1.3 78.7±0.8 76.9±4.9 74.3±1.5 49.0±2.5 44.0±1.0 53.4±5.9 27.4±5.3
+DKMp + KM 85.1±3.0 79.9±1.5 75.7±1.3 77.6±1.1 52.1±2.7 47.1±1.3 58.3±3.8 33.0±4.9
+comparison to applyingk-Means to the AE-based representations (i.e., AE-KM). In other words, we evaluate
+the “k-Means-friendliness” of the learned representations. The results of this experiment are reported in Table 7.
+We can observe that on most datasets the representations learned byk-Means-related deep clustering approaches
+lead to signiﬁcant improvement wrt AE-learned representations. This conﬁrms that all these deep clustering
+methods truly bias their representations. Overall, although the difference is not statistically signiﬁcant on all
+datasets/metrics, the representations learned by DKMp are shown to be the most appropriate tok-Means. This
+goes in line with the insight gathered from the previous experiments.
+14

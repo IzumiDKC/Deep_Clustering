@@ -1,0 +1,225 @@
+{
+  "date": "2026-10-13",
+  "moved": [
+    {
+      "destination": "archive\\reference_results",
+      "source": "results"
+    },
+    {
+      "destination": "archive\\results_verified_20261012",
+      "source": "results_verified_20261012"
+    },
+    {
+      "destination": "results\\timeline_20261013",
+      "source": "results_timeline_20261013"
+    },
+    {
+      "destination": "results\\dcss_width_ablation_20261013",
+      "source": "results_dcss_width_ablation_20261013"
+    },
+    {
+      "destination": "archive\\reports\\Bao_cao_kiem_tra_va_thuc_nghiem.html",
+      "source": "docs\\Bao_cao_kiem_tra_va_thuc_nghiem.html"
+    },
+    {
+      "destination": "archive\\reports\\Bao_cao_kiem_tra_va_thuc_nghiem.docx",
+      "source": "docs\\Bao_cao_kiem_tra_va_thuc_nghiem.docx"
+    },
+    {
+      "destination": "archive\\reports\\Bao_cao_kiem_tra_va_thuc_nghiem.md",
+      "source": "docs\\Bao_cao_kiem_tra_va_thuc_nghiem.md"
+    },
+    {
+      "destination": "archive\\notebooks\\demo_5_algorithms.ipynb",
+      "source": "notebooks\\demo_5_algorithms.ipynb"
+    },
+    {
+      "destination": "archive\\notebooks\\demo_5_algorithms_verified.ipynb",
+      "source": "notebooks\\demo_5_algorithms_verified.ipynb"
+    },
+    {
+      "destination": "archive\\verification_initial.json",
+      "source": "checks\\verification.json"
+    },
+    {
+      "destination": "archive\\tools\\execute_review_notebook.py",
+      "source": "checks\\execute_review_notebook.py"
+    },
+    {
+      "destination": "archive\\tools\\finalize_literature_tracker.py",
+      "source": "checks\\finalize_literature_tracker.py"
+    },
+    {
+      "destination": "scripts\\build_timeline_notebook.py",
+      "source": "checks\\build_timeline_notebook.py"
+    },
+    {
+      "destination": "scripts\\diagnose_dcss_initialization.py",
+      "source": "checks\\diagnose_dcss_initialization.py"
+    },
+    {
+      "destination": "scripts\\run_dcss_calibration.py",
+      "source": "checks\\run_dcss_calibration.py"
+    },
+    {
+      "destination": "scripts\\prepare_data.py",
+      "source": "prepare_data.py"
+    },
+    {
+      "destination": "scripts\\summarize_survey.py",
+      "source": "summarize_survey.py"
+    },
+    {
+      "destination": "scripts\\build_review_report.py",
+      "source": "build_review_report.py"
+    },
+    {
+      "destination": "requirements\\report.txt",
+      "source": "requirements_report.txt"
+    },
+    {
+      "destination": "requirements\\notebook.txt",
+      "source": "requirements_notebook.txt"
+    },
+    {
+      "destination": "requirements\\verified.txt",
+      "source": "requirements_verified.txt"
+    },
+    {
+      "destination": "archive\\requirements_tested.txt",
+      "source": "requirements_tested.txt"
+    },
+    {
+      "destination": "docs\\references\\primary_papers",
+      "source": "docs\\primary_papers"
+    },
+    {
+      "destination": "docs\\references\\author_sources",
+      "source": "docs\\author_sources"
+    },
+    {
+      "destination": "docs\\references\\survey_papers",
+      "source": ".survey_sources"
+    },
+    {
+      "destination": "docs\\references\\literature_catalog_additions.json",
+      "source": "docs\\literature_catalog_additions.json"
+    },
+    {
+      "destination": "docs/original/Bao_cao_Survey_Deep_Clustering_va_Demo_5_Phuong_phap.docx",
+      "source": "../Bao_cao_Survey_Deep_Clustering_va_Demo_5_Phuong_phap.docx"
+    }
+  ],
+  "deleted": [
+    {
+      "path": "checks\\browser_review_profile",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 207,
+      "bytes": 10011029
+    },
+    {
+      "path": "checks\\report_chrome_profile",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 207,
+      "bytes": 6864996
+    },
+    {
+      "path": "checks\\timeline_preview_profile",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 170,
+      "bytes": 6727732
+    },
+    {
+      "path": "__pycache__",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 3,
+      "bytes": 156261
+    },
+    {
+      "path": "src\\__pycache__",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 6,
+      "bytes": 57282
+    },
+    {
+      "path": "checks\\__pycache__",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 4,
+      "bytes": 45601
+    },
+    {
+      "path": "results_smoke_dcss_20261013",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 27,
+      "bytes": 1389953
+    },
+    {
+      "path": "results_smoke_timeline_20261013",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 26,
+      "bytes": 1385734
+    },
+    {
+      "path": "results_live_20261013",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 29,
+      "bytes": 2691175
+    },
+    {
+      "path": "checks\\report_html_preview.png",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 1,
+      "bytes": 157114
+    },
+    {
+      "path": "checks\\report_preview.png",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 1,
+      "bytes": 101219
+    },
+    {
+      "path": "checks\\timeline_html_preview.png",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 1,
+      "bytes": 106183
+    },
+    {
+      "path": "checks\\read_primary_papers.py",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 1,
+      "bytes": 1857
+    },
+    {
+      "path": "checks\\link_latest_report.py",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 1,
+      "bytes": 724
+    },
+    {
+      "path": "docs\\Bao_cao_Survey_Deep_Clustering_va_Demo_5_Phuong_phap.docx",
+      "reason": "Generated temporary artifacts or checksum-identical Word duplicate",
+      "files": 1,
+      "bytes": 210384
+    }
+  ],
+  "preserved_source_snapshots": [
+    {
+      "snapshot": "archive\\source_snapshots\\20261013\\run_demo.py",
+      "source": "run_demo.py",
+      "sha256": "753B171283CFE779F0F9D1F057824F6D1FD0863DFB8168F50ABC2D993B3410A0"
+    },
+    {
+      "snapshot": "archive\\source_snapshots\\20261013\\checks\\run_dcss_calibration.py",
+      "source": "checks\\run_dcss_calibration.py",
+      "sha256": "F34C682AC66FF9DDDFAE37A9B9259B4F2EC93E6FA428BD23D2B4D16ADC42BE77"
+    }
+  ],
+  "verification_after_cleanup": {
+    "main_runs_verified": 20,
+    "ablation_runs_verified": 5,
+    "main_notebook_executed": true,
+    "current_report_local_links_checked": true,
+    "original_word_checksum_preserved": true,
+    "measurements_and_checkpoints_preserved": true
+  }
+}

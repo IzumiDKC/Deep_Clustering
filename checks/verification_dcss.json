@@ -1,0 +1,30 @@
+{
+  "created_utc": "2026-10-13T01:27:33.261552+00:00",
+  "status": "passed",
+  "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+  "numpy": "2.5.1",
+  "gradient_checks": 210,
+  "gradient_groups": {
+    "source_silhouette_z": 21,
+    "source_silhouette_Q": 28,
+    "paper_silhouette_z": 21,
+    "paper_silhouette_Q": 28,
+    "network": 96,
+    "RBF_log_sigmas": 4,
+    "RBF_centers": 12
+  },
+  "max_gradient_relative_error": 5.303335726565605e-06,
+  "default_objective": "MSE+0.01*(1-softsil_source)+0.01*entropy_bits; Gaussian RBF softmax T=0.25",
+  "checks": [
+    "literal author mask/view/reversal forward",
+    "source and paper silhouette gradients",
+    "full network distance and assignment gradients",
+    "RBF centroid and log_sigma gradients",
+    "zero-distance safety",
+    "singleton tail preserves all samples",
+    "deterministic training",
+    "epoch trace matches post-update evaluation batches",
+    "final prediction matches RBF Q"
+  ],
+  "scope": "DCSS public-code objective on shared NumPy backbone; no original author environment execution"
+}

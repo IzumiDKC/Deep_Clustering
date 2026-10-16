@@ -1,0 +1,1046 @@
+DivClust: Controlling Diversity in Deep Clustering
+Ioannis Maniadis Metaxas*, Georgios Tzimiropoulos, Ioannis Patras
+Queen Mary University of London
+Mile End road, E1 4NS London, UK
+{i.maniadismetaxas, g.tzimiropoulos, i.patras }@qmul.ac.uk
+Abstract
+Clustering has been a major research topic in the field
+of machine learning, one to which Deep Learning has re-
+cently been applied with significant success. However, an
+aspect of clustering that is not addressed by existing deep
+clustering methods, is that of efficiently producing multi-
+ple, diverse partitionings for a given dataset. This is par-
+ticularly important, as a diverse set of base clusterings are
+necessary for consensus clustering, which has been found
+to produce better and more robust results than relying on
+a single clustering. To address this gap, we propose Div-
+Clust, a diversity controlling loss that can be incorporated
+into existing deep clustering frameworks to produce mul-
+tiple clusterings with the desired degree of diversity. We
+conduct experiments with multiple datasets and deep clus-
+tering frameworks and show that: a) our method effectively
+controls diversity across frameworks and datasets with very
+small additional computational cost, b) the sets of clus-
+terings learned by DivClust include solutions that signifi-
+cantly outperform single-clustering baselines, and c) using
+an off-the-shelf consensus clustering algorithm, DivClust
+produces consensus clustering solutions that consistently
+outperform single-clustering baselines, effectively improv-
+ing the performance of the base deep clustering frame-
+work. Code is available at https://github.com/
+ManiadisG/DivClust.
+1. Introduction
+The exponentially increasing volume of visual data,
+along with advances in computing power and the develop-
+ment of powerful Deep Neural Network architectures, have
+revived the interest in unsupervised learning with visual
+data. Deep clustering in particular has been an area where
+significant progress has been made in the recent years. Ex-
+isting works focus on producing a single clustering, which
+is evaluated in terms of how well that clustering matches
+*Corresponding author
+the ground truth labels of the dataset in question. However,
+consensus, or ensemble, clustering remains under-studied
+in the context of deep clustering, despite the fact that it has
+been found to consistently improve performance over single
+clustering outcomes [3, 17, 45, 73].
+Consensus clustering consists of two stages, specifically
+generating a set of base clusterings, and then applying a
+consensus algorithm to aggregate them. Identifying what
+properties ensembles should have in order to produce better
+outcomes in each setting has been an open problem [18].
+However, research has found that inter-clustering diver-
+sity within the ensemble is an important, desirable fac-
+tor [14,20,24,34,51], along with individual clustering qual-
+ity, and that diversity should be moderated [15,22,51]. Fur-
+thermore, several works suggest that controlling diversity
+in ensembles is important toward studying its impact and
+determining its optimal level in each setting [22, 51].
+The typical way to produce diverse clusterings is to pro-
+mote diversity by clustering the data multiple times with
+different initializations/hyperparameters or subsets of the
+data [3, 17]. This approach, however, does not guaran-
+tee or control the degree of diversity, and is computation-
+ally costly, particularly in the context of deep clustering,
+where it would require the training of multiple models.
+Some methods have been proposed that find diverse clus-
+terings by including diversity-related objectives to the clus-
+tering process, but those methods have only been applied
+to clustering precomputed features and cannot be trivially
+incorporated into Deep Learning frameworks. Other meth-
+ods tackle diverse clustering by creating and clustering di-
+verse feature subspaces, including some that apply this ap-
+proach in the context of deep clustering [48, 61]. Those
+methods, however, do not control inter-clustering diversity.
+Rather, they influence it indirectly through the properties
+of the subspaces they create. Furthermore, typically, exist-
+ing methods have been focusing on producing orthogonal
+clusterings or identifying clusterings based on independent
+attributes of relatively simple visual data (e.g. color/shape).
+Consequently, they are oriented toward maximizing inter-
+clustering diversity, which is not appropriate for consensus
+This CVPR paper is the Open Access version, provided by the Computer Vision Foundation.
+Except for this watermark, it is identical to the accepted version;
+the final published version of the proceedings is available on IEEE Xplore.
+3418
+
+Figure 1. Overview of DivClust. Assuming clusterings A and B, the proposed diversity loss Ldiv calculates their similarity matrix SAB
+and restricts the similarity between cluster pairs to be lower than a similarity upper bound d. In the figure, this is represented by the model
+adjusting the cluster boundaries to produce more diverse clusterings. Best seen in color.
+clustering [15, 22, 51].
+To tackle this gap, namely generating multiple cluster-
+ings with deep clustering frameworks efficiently and with
+the desired degree of diversity, we propose DivClust. Our
+method can be straightforwardly incorporated into exist-
+ing deep clustering frameworks to learn multiple cluster-
+ings whose diversity is explicitly controlled. Specifically,
+the proposed method uses a single backbone for feature ex-
+traction, followed by multiple projection heads, each pro-
+ducing cluster assignments for a corresponding clustering.
+Given a user defined diversity target, in this work expressed
+in terms of the average NMI between clusterings, DivClust
+restricts inter-clustering similarity to be below an appropri-
+ate, dynamically estimated threshold. This is achieved with
+a novel loss component, which estimates inter-clustering
+similarity based on soft cluster assignments produced by the
+model, and penalizes values exceeding the threshold. Im-
+portantly, DivClust introduces minimal computational cost
+and requires no hyperparameter tuning with respect to the
+base deep clustering framework, which makes its use sim-
+ple and computationally efficient.
+Experiments on four datasets (CIFAR10, CIFAR100,
+Imagenet-10, Imagenet-Dogs) with three recent deep clus-
+tering methods (IIC [37], PICA [32], CC [44]) show that
+DivClust can effectively control inter-clustering diversity
+without reducing the quality of the clusterings. Further-
+more, we demonstrate that, with the use of an off-the-shelf
+consensus clustering algorithm, the diverse base clusterings
+learned by DivClust produce consensus clustering solutions
+that outperform the base frameworks, effectively improving
+them with minimal computational cost. Notably, despite the
+sensitivity of consensus clustering to the properties of the
+ensemble, our method is robust across various diversity lev-
+els, outperforming baselines in most settings, often by large
+margins. Our work then provides a straightforward way for
+improving the performance of deep clustering frameworks,
+as well as a new tool for studying the impact of diversity in
+deep clustering ensembles [51].
+In summary, DivClust: a) can be incorporated in ex-
+isting deep clustering frameworks in a plug-and-play way
+with very small computational cost, b) can explicitly and
+effectively control inter-clustering diversity to satisfy user-
+defined targets, and c) learns clusterings that can improve
+the performance of deep clustering frameworks via consen-
+sus clustering.
+2. Related Works
+2.1. Deep Clustering
+The term deep clustering refers to methods that cluster
+data while learning their features. They are generally di-
+vided into two categories, namely those that alternate train-
+ing between clustering and feature learning and those that
+train both simultaneously.
+Alternate learning: Methods following this approach
+generally utilize a two-step training regime repeated in reg-
+ular intervals (e.g. per-epoch or per-step). First, sample
+pseudo-labels are produced based on representations ex-
+tracted by the model (e.g. by feature clustering). Sec-
+ond, those pseudo-labels are utilized to improve the learned
+representations, typically by training the feature extraction
+model as a classifier. Those methods include DEC [64],
+DAC [8], DCCM [63], DDC [7], JULE [66], SCAN [57],
+ProPos [33] and SPICE [49], as well as DSC-N [36],
+IDFD [65] and MIX’EM [58], which propose ways to
+train models whose representations produce better out-
+comes when clustered. Other works in this area are Deep-
+Cluster [5], SeLa [1], PCL [42] and HCSC [21], though
+their primary focus is on representation learning.
+Simultaneous learning : These methods jointly learn
+features and cluster assignments. They include ADC [23],
+IIC [37] and PICA [32], which train clustering models
+end-to-end with loss functions that enforce desired proper-
+ties on the clusters assignments, ConCURL [11, 52], which
+builds on BYOL [19] with a loss maximizing the agreement
+of clusterings from transformed embeddings, DCCS [71],
+which leverages an adversarial component in the clustering
+process, and GatCluster [50], which proposes an attention
+3419
+
+mechanism combined with four self-learning tasks. Finally,
+methods such as SCL [31], CC [44], GCC [72], TCC [53]
+and MiCE [56] leverage contrastive learning.
+Although some deep clustering methods [1, 37, 52] use
+multiple clusterings, most do not explore the prevalence and
+impact of inter-clustering diversity, and none proposes ways
+to control it. Our work is, to the best of our knowledge, the
+first that addresses both issues.
+2.2. Diverse Clustering
+The most straightforward way of producing multiple, di-
+verse clusterings is clustering the data multiple times. Typ-
+ical methods to increase diversity include varying the clus-
+tering algorithm or its hyperparameters, using different ini-
+tializations, and clustering a subset of the samples or fea-
+tures [3]. This approach, however, is a) computationally
+costly, in that it requires clustering the data multiple times,
+b) unreliable, as some ways to increase diversity might de-
+crease the quality of clusters (e.g. using a subset of the
+data), and c) ineffective, as there is no guarantee that the
+desired degree of diversity will be achieved.
+To tackle this, several methods have been proposed to
+create multiple, diverse clusterings [25]. We identify two
+main approaches of promoting inter-clustering diversity: a)
+explicitly, by optimizing for appropriate objectives, and b)
+implicitly, by optimizing for decorrelated/orthogonal fea-
+ture subspaces, which, when clustered, lead to diverse clus-
+terings. Methods in the first category include COALA [2],
+Meta Clustering [6], Dec-kmeans [35], MNMF [67],
+MSC [26], ADFT [10] and MultiCC [60]. Subspace
+clustering methods include MISC [59], ISAAC [69], NR-
+kmeans [47], RAOSC [70] and ENRC [48]. Distinctly, di-
+verse clustering has also been explored in the context of
+multi-view data by OSC [9], MVMC [68], DMSMF [46],
+DMClusts [62], DiMSC [4], and DiMVMC [61].
+To the best of our knowledge, except for DiMVMC and
+ENRC, none of the existing methods are compatible with
+Deep Learning, they require a learned feature space on
+which to be applied, and most have quadratic complexity
+relative to the number of samples. This restricts their use on
+real-life high dimensional data, where deep clustering pro-
+duces better outcomes [56, 57]. Regarding DiMVMC and
+ENRC, they depend on autoencoder-based architectures and
+adapting them to more recent deep clustering frameworks,
+which perform significantly better, is not trivial. More im-
+portantly, they utilize subspace clustering, inheriting its lim-
+itations regarding controlling diversity. Specifically: a) no
+method has been proposed to infer how different the sub-
+spaces must be in order to lead to a specific degree of inter-
+clustering diversity, and b) subspace clustering methods in-
+herit the randomness of the clustering algorithm applied to
+the subspaces (K-means for DiMVMC and ENRC), which
+further limits their control over the outcomes.
+2.3. Consensus Clustering
+The performance of clustering algorithms varies depend-
+ing on the data and their properties, the algorithm itself, and
+its hyperparameters. This makes finding reliable cluster-
+ing solutions particularly difficult. Consensus, or ensem-
+ble, clustering has emerged as a solution to this problem,
+specifically by combining the results of multiple, different
+clusterings, rather than relying on a single solution. This
+has been found to produce better and more robust outcomes
+than single-clustering approaches [3, 17, 18, 45]. The pro-
+cess of consensus clustering happens in two stages: a) mul-
+tiple, diverse base clusterings are generated and b) those
+clusterings are aggregated using a consensus algorithm.
+Generating diverse clusterings: The properties of the
+set of clusterings used by the consensus algorithm is a key
+factor for obtaining good performance. Multiple works [24,
+40, 51] have found that both the quality of individual base
+clusterings and their diversity is critical, and that, indeed,
+clustering ensembles with a moderate degree of diversity
+lead to better outcomes [15, 20, 22]. Typical methods for
+ensemble generation include using different clustering algo-
+rithms [13], using different initializations of the same clus-
+tering algorithm or different hyperparameters (e.g. the num-
+ber of clusters) [16,22,41], clustering with different subsets
+of the features [54], using random projections to diversify
+the feature space [14], and clustering with different subsets
+of the dataset [12,13]. However, concrete methods for iden-
+tifying optimal hyperparameters, such as the degree of di-
+versity, the number of clusterings in the ensemble, and the
+method by which the ensemble is generated, remain elusive.
+Consensus algorithms: Consensus algorithms aim to
+aggregate multiple, diverse clusterings to produce a single,
+robust solution. Various approaches to this problem have
+been proposed, such as using matrix factorization [43], dis-
+tance minimization between clusterings [75], utilizing mul-
+tiple views [55], graph learning [28, 73, 74] and matrix co-
+association [29,38]. We note that, while improving consen-
+sus algorithms increase the robustness of consensus cluster-
+ing overall, the stages of ensemble generation and its aggre-
+gation with consensus algorithms are largely independent.
+Consensus Clustering & Deep Learning: Despite the
+established advantages of consensus clustering over single-
+clustering approaches, consensus clustering has not been
+explored in the context of deep clustering. A possible rea-
+son is the computational cost of generating multiple, di-
+verse base clusterings, which would require training mul-
+tiple models. The only work that has, to the best of our
+knowledge, applied consensus clustering in the deep clus-
+tering setting is DeepCluE [27]. Notably, however, the base
+clusterings used by DeepCluE are not all learned by the
+model. Rather, a single-clustering model is trained, and an
+ensemble is generated by clustering features from multiple
+layers of the model with U-SPEC [30]. Our work addresses
+3420
+
+this gap, by proposing a way to train a single deep cluster-
+ing model to generate multiple clusterings with controlled
+diversity and with minimal computational overhead.
+3. Method
+Overview: Our method consists of two components: a)
+A novel loss function that can be incorporated in deep clus-
+tering frameworks to control inter-clustering diversity by
+applying a threshold to cluster-wise similarities, and b) a
+method for dynamically estimating that threshold so that the
+clusterings learned by the model are sufficiently diverse, ac-
+cording to a user-defined metric.
+More concretely, we assume a deep clustering model
+that learns K clusterings (typically a backbone encoder fol-
+lowed by K projection heads), a deep clustering framework
+and its loss function Lmain, and a diversity target DT set
+by the user, expressed as an upper bound to inter-clustering
+similarity1 (i.e. the maximum acceptable similarity). In
+order to control the inter-clustering similarity DR of the
+learned clusterings so that DT ≤ DR, we propose a com-
+plementary loss Ldiv. Specifically, given soft cluster as-
+signments for a pair of clusterings A, B∈ K, we define the
+inter-clustering similarity matrix SAB ∈ RCA×CB, where
+CA and CB is the number of clusters in each clustering, and
+SAB(i, j) ∈ [0, 1] measures the similarity between clusters
+i ∈ CA and j ∈ CB. It follows that decreasing the val-
+ues of SAB reduces the similarity between the clusters of A
+and B, and therefore increases their diversity. Accordingly,
+Ldiv utilizes SAB in order to restrict inter-clustering simi-
+larity to be under an upper similarity bound d. The value of
+d is dynamically adjusted during training, decreasing when
+DR > DT and increasing when DR ≤ DT , thereby tight-
+ening and relaxing the loss function so that, overall and
+throughout training, inter-clustering similarity DR remains
+at or under the desired level DT .
+Defining the inter-clustering similarity matrix: Our
+method assumes a standard deep clustering architecture,
+consisting of an encoder f, followed by K projection heads
+h1, ..., hK, each of which produces assignments for a clus-
+tering k. Specifically, let X be a set of N unlabeled sam-
+ples. The encoder maps each sample x ∈ X to a rep-
+resentation f (x), and each projection head hk maps f (x)
+to Ck clusters, so that pk(x) = hk(f (x)) ∈ RCk×1 rep-
+resents a probability assignment vector mapping sample
+x ∈ X to Ck clusters in clustering k. Without loss of gen-
+erality, we assume that C = Ck∀k ∈ K. Each cluster-
+ing can then be represented by a cluster assignment matrix
+Pk(X) = [pk(x1), pk(x2), ..., pk(xN )] ∈ RC×N . The col-
+umn pk(n), that is the probability assignment vector for the
+1It is trivial to modify our formulation to enforce a lower bound. How-
+ever, experiments (see Sec. 4.2) showed that, when learning multiple clus-
+terings, deep clustering frameworks inherently tend to converge to near-
+identical solutions, which made the lower bound scenario redundant.
+n-th sample, encodes the degrees to which sample xn is as-
+signed to different clusters. The row vector qk(i) ∈ RN
+shows which samples are softly assigned to cluster i ∈ C.
+We refer to qk(i) as the cluster membership vector.
+To quantify the similarity between clusterings A and
+B we define the inter-clustering similarity matrix SAB ∈
+RC×C. We define each element SAB(i, j) as the cosine
+similarity between the cluster membership vector qA(i) of
+cluster i ∈ A and the cluster membership vector qB(j) of
+cluster j ∈ B:
+SAB(i, j) = qA(i) · qB(j)
+||qA(i)||2||qB(j)||2
+(1)
+This measure expresses the degree to which samples in the
+dataset are assigned similarly to clusters i and j. Specifi-
+cally, SAB(i, j) = 0if qA(i) ⊥ qB(j) and SAB(i, j) = 1if
+qA(i) =qB(j). It is, therefore, a differentiable measure of
+the similarity of clusters i and j.
+Defining the loss function: Based on the inter-
+clustering similarity matrix SAB, we define DivClust’s loss
+to softly enforce that a clustering A does not have an ag-
+gregate cluster similarity with a clustering B greater than
+a similarity upper bound d. The aggregate similarity Saggr
+AB
+is defined as the average similarity of clustering A’s clus-
+ters with their most similar cluster of clusteringB (Eq. (2)).
+Using this metric, we propose Ldiv (Eq. (3)), a loss that
+regulates diversity between clusterings A and B by forcing
+that Saggr
+AB < d, for d ∈ [0, 1]. It is clear from Eq. (3) that
+Saggr
+AB < d⇒ Ldiv(A, B) = 0, in which case the diversity
+requirement is satisfied and the loss has no impact. Con-
+versely, Saggr
+AB ≥ d ⇒ Ldiv(A, B) > 0, in which case the
+loss requires that inter-clustering similarity decreases.
+Saggr
+AB = 1
+C
+CX
+i=1
+max
+j
+(SAB(i, j)) (2)
+Ldiv(A, B) = [Saggr
+AB − d]+ (3)
+Having defined the diversity lossLdiv between two clus-
+terings, we extend it to multiple clusterings K and combine
+it with the base deep clustering framework’s objective. For
+a clustering k ∈ K, we denote with Lmain(k) the loss of
+the base deep clustering framework for that clustering, and
+with Ldiv(k, k′) the diversity controlling loss between clus-
+terings k and k′. We present the joint loss Ljoint(k) for
+each clustering k in Eq. (4), where Lmain(k) depends on
+cluster assignment matrix Pk, while Ldiv(k, k′) depends on
+Pk and Pk′. Accordingly, the model’s training loss Ltotal,
+seen in Eq. (5), is the average of Ljoint over all clusterings.
+Ljoint(k) =Lmain(k)+ 1
+K − 1
+KX
+k′=1,k′̸=k
+Ldiv(k, k′) (4)
+3421
+
+(a) Cluster assignments PA for clustering A
+ (b) Cluster assignments PB for clustering B
+ (c) Similarity matrix SAB
+Figure 2. Examples of synthetic cluster assignments PA, PB and similarity matrix SAB. Note that clusters i ∈ A and j ∈ B are softly
+assigned the same samples. Correspondingly, their similarity score SAB(i, j) is high (highlighted with red in Fig. 2c). Best seen in color.
+Ltotal = 1
+K
+KX
+k=1
+Ljoint(k) (5)
+The loss Ltotal is therefore a combination of the base
+deep clustering framework’s loss Lmain for each clustering
+k ∈ K and the loss Ldiv, which is used to control inter-
+clustering diversity. The proposed loss formulation is appli-
+cable to any deep clustering framework that produces clus-
+ter assignments through the model (as opposed to frame-
+works using offline methods such as MIX’EM [58]), which
+covers the majority of deep clustering frameworks outlined
+in Sec. 2.
+Dynamic upper bound d: The proposed loss Ldiv con-
+trols inter-clustering diversity by restricting the values of
+SAB according to the similarity upper bound d. However,
+the values of SAB are calculated based on the cosine simi-
+larity of soft cluster assignments. This means that pairs of
+cluster assignment vectors i, j will have different similar-
+ity values SAB(i, j) depending on their sharpness, even if
+they point to the same cluster in terms of their correspond-
+ing hard assignment. It follows that SAB and, accordingly,
+the impact of d, are dependent on the confidence of cluster
+assignments and vary throughout training and between ex-
+periments (as factors like the number of clusters and model
+capacity influence the confidence of cluster assignments).
+Therefore, d is an ambiguous and unintuitive metric for
+users to define diversity targets with.
+To tackle this issue and to provide a reliable and intu-
+itive method for defining diversity objectives, we propose
+dynamically determining the value of the threshold d dur-
+ing training. Concretely, let D be an inter-clustering simi-
+larity metric chosen by the user. In this work, we use avg.
+Normalized Mutual Information (NMI), a well established
+metric for estimating inter-clustering similarity.
+D = 1
+(K − 1)(K/2)
+K−1X
+k=1
+KX
+k′=k+1
+N M I(P h
+k , Ph
+k′) (6)
+where P h
+k ∈ ZN is the hard cluster assignment vector forN
+samples in clusteringk ∈ K and N M I(P h
+k , Ph
+k′) represents
+the NMI between k and k′. D ∈ [0, 1], with higher values
+indicating more similar clusterings.
+Assuming a user-defined similarity targetDT , expressed
+as a value of metric D, we denote with DR the measured
+inter-clustering similarity of the clusterings learned by the
+model, expressed in the same metric. DivClust’s objective
+is to control inter-clustering diversity, which translates to
+learning clusterings such that DR ≤ DT . Accordingly, ap-
+propriate thresholds d must be used during training. Under
+the assumption that DR decreases monotonically w.r.t. d,
+we propose the following update rule for d:
+ds+1 =
+(
+max(ds(1 − m), 0), if DR > DT
+min(ds(1 +m), 1), if DR ≤ DT , (7)
+where ds and ds+1 are the values of the threshold d for the
+current and the next steps, and m ∈ (0, 1) regulates the
+magnitude of the update steps. Following this update rule,
+we decrease d when the measured inter-clustering similar-
+ity DR needs to decrease, and increase it otherwise. For
+computational efficiency, instead of calculating DR over
+the entire dataset in every training step, we do so every 20
+iterations on a memory bank of M = 10, 000 cluster as-
+signments – the latter is updated at every step in a FIFO
+manner. We set the hyperparameter m to m = 0.01 in all
+experiments.
+4. Experiments
+We conduct several experiments to evaluate DivClust’s
+adaptability, its effectiveness in controlling diversity, and
+the quality of the resulting clusterings. First, to show that
+DivClust effectively controls inter-clustering diversity and
+produces high quality clusterings with various frameworks,
+we combine it with IIC [37], PICA [32] and CC [44],
+and apply it to CIFAR10 with various diversity targets
+DT . Subsequently, we focus on the best framework of the
+3422
+
+Framework Clusterings DT DR CNF Mean Acc. Max. Acc. DivClust Acc.
+IIC
+1 - - 0.997 0.442 0.442 0.442
+20 1. 0.983 0.996 0.526 0.526 0.526
+20 0.95 0.939 0.998 0.531 0.537 0.533
+20 0.9 0.888 0.997 0.568 0.59 0.578
+20 0.8 0.8 0.997 0.611 0.678 0.653
+20 0.7 0.694 0.996 0.566 0.637 0.685
+PICA
+1 - - 0.906 0.533 0.533 0.533
+20 1. 0.991 0.814 0.597 0.597 0.596
+20 0.95 0.931 0.826 0.624 0.631 0.625
+20 0.9 0.891 0.841 0.648 0.665 0.652
+20 0.8 0.817 0.828 0.598 0.635 0.595
+20 0.7 0.703 0.824 0.625 0.691 0.671
+CC
+1 - - 0.936 0.764 0.764 0.764
+20 1. 0.976 0.934 0.763 0.763 0.763
+20 0.95 0.946 0.934 0.762 0.773 0.76
+20 0.9 0.9 0.931 0.794 0.818 0.789
+20 0.8 0.814 0.93 0.762 0.847 0.819
+20 0.7 0.699 0.927 0.703 0.818 0.815
+Table 1. Results for IIC, PICA and CC applied on CIFAR10 with DivClust. CNF and Mean Acc. are calculated by averaging the
+corresponding metrics over all clusterings, while Max Acc. refers to the best performing base clustering. The DivClust Acc. metric
+measures the accuracy of a consensus clustering produced with the DivClust C method.
+DT DR
+CIFAR10 CIFAR100 ImageNet-10 ImageNet-Dogs
+1. 0.976 0.939 0.987 0.941
+0.95 0.946 0.926 0.948 0.945
+0.9 0.9 0.848 0.897 0.87
+0.8 0.814 0.806 0.807 0.795
+0.7 0.699 0.705 0.696 0.702
+Table 2. Avg. inter-clustering similarity scores DR for clustering
+sets produced by DivClust combined with CC for various diversity
+targets DT . The objective of DivClust is that DR ≤ DT .
+three, namely CC, and conduct experiments on 4 datasets
+(CIFAR10, CIFAR100, Imagenet-10 and Imagenet-Dogs).
+Our findings demonstrate that, across frameworks and
+datasets, DivClust can: a) effectively control diversity and
+b) improve clustering outcomes over the base frameworks
+and alternative ensembling methods.
+4.1. Experiments setup
+Datasets: We conduct experiments with 4 standard
+datasets in deep clustering: CIFAR10, CIFAR100 [39]
+(evaluating on the 20 superclasses), ImageNet-10 and
+ImageNet-Dogs [8].
+Metrics: Inter-clustering similarity is measured by av-
+eraging the NMI between clusterings to calculate the inter-
+clustering NMI metric D (Eq. (6)), with higher values in-
+dicating more similar clusterings. We denote with DT the
+diversity target set by the user and with DR the measured
+inter-clustering similarity after training. When DivClust is
+applied we want that DR ≤ DT . Clustering quality is eval-
+uated based on overlap of the clusterings with the dataset’s
+ground truth labels, using the Accuracy (ACC), Normalized
+Mutual Information (NMI) and Adjusted Rand Index (ARI)
+metrics. We also report the avg. cluster assignment confi-
+dence (CNF), which measures cluster separability. For all
+four metrics greater values are better, 1 being optimal.
+Implementation & Training: DivClust is incorporated
+into the base frameworks as described in Sec. 3, by adding
+DivClust’s loss to their objective and duplicating projec-
+tion heads h to produce multiple clusterings. The models
+were trained following the configurations (model architec-
+ture, training duration, hyperparameters etc.) suggested in
+their respective papers [32, 37, 44], unless stated otherwise.
+PICA and IIC were trained without overclustering. We set
+the number of clusterings to K = 20, following convention
+in consensus clustering [73], and the number of clusters C
+to the number of classes for each dataset, following conven-
+tion for deep clustering evaluation [32, 37, 44].
+Consensus Clustering: To extract single clustering so-
+lutions we examine three methods: a) selecting the clus-
+tering k with the lowest corresponding loss Lmain(k)
+(DivClust A), b) using the consensus clustering algorithm
+SCCBG [73] to aggregate clusterings ( DivClust B ), and
+c) a combination of the two, where we select the 10 best
+clusterings with regard to their loss and then apply SCCBG
+(DivClust C). For clarity and space, we present in the paper
+3423
+
+Dataset DT CIFAR10 CIFAR100 ImageNet-10 ImageNet-Dogs
+Metric NMI NMI ACC ARI NMI ACC ARI NMI ACC ARI NMI ACC ARI
+K-means - 0.087 0.229 0.049 0.084 0.130 0.028 0.119 0.241 0.057 0.55 0.105 0.020
+AC - 0.105 0.228 0.065 0.098 0.138 0.034 0.138 0.242 0.067 0.037 0.139 0.021
+NMF - 0.081 0.190 0.034 0.079 0.118 0.026 0.132 0.230 0.065 0.044 0.118 0.016
+AE - 0.237 0.314 0.169 0.100 0.165 0.048 0.210 0.317 0.152 0.104 0.185 0.073
+DAE - 0.251 0.297 0.163 0.111 0.151 0.046 0.206 0.304 0.138 0.104 0.190 0.078
+DCGAN - 0.265 0.315 0.176 0.120 0.151 0.045 0.225 0.346 0.157 0.121 0.174 0.078
+DeCNN - 0.240 0.282 0.174 0.092 0.133 0.038 0.186 0.313 0.142 0.098 0.175 0.073
+V AE - 0.245 0.291 0.167 0.108 0.152 0.040 0.193 0.334 0.168 0.107 0.179 0.079
+JULE - 0.192 0.272 0.138 0.103 0.137 0.033 0.175 0.300 0.138 0.054 0.138 0.028
+DEC - 0.257 0.301 0.161 0.136 0.185 0.050 0.282 0.381 0.203 0.122 0.195 0.079
+DAC - 0.396 0.522 0.306 0.185 0.238 0.088 0.394 0.527 0.302 0.219 0.275 0.111
+ADC - - 0.325 - - 0.160 - - 0.530 - - - -
+DDC - 0.424 0.524 0.329 - - - 0.433 0.577 0.345 - - -
+DCCM - 0.496 0.623 0.408 0.285 0.327 0.173 0.608 0.710 0.555 0.321 0.383 0.182
+IIC - - 0.617 - - 0.257 - - - - - - -
+PICA - 0.591 0.696 0.512 0.310 0.337 0.171 0.802 0.870 0.761 0.352 0.352 0.201
+CC - 0.705 0.790 0.637 0.431 0.429 0.266 0.859 0.893 0.822 0.445 0.429 0.274
+CC-Kmeans - 0.654 0.698 0.523 0.429 0.405 0.235 0.792 0.841 0.669 0.457 0.444 0.284
+CC-Kmeans/S - 0.674 0.69 0.554 0.428 0.402 0.228 0.792 0.842 0.673 0.456 0.444 0.283
+CC-Kmeans/F - 0.684 0.762 0.599 0.438 0.409 0.210 0.797 0.847 0.685 0.458 0.444 0.285
+DeepCluE - 0.727 0.764 0.646 0.472 0.457 0.288 0.882 0.924 0.856 0.448 0.416 0.273
+DivClust C
+1. 0.678 0.763 0.604 0.418 0.424 0.257 0.86 0.895 0.825 0.459 0.451 0.298
+0.95 0.677 0.76 0.602 0.431 0.434 0.276 0.891 0.936 0.878 0.461 0.451 0.297
+0.9 0.678 0.789 0.641 0.422 0.426 0.258 0.879 0.92 0.859 0.48 0.487 0.332
+0.8 0.724 0.819 0.681 0.422 0.414 0.26 0.879 0.918 0.851 0.458 0.448 0.296
+0.7 0.71 0.815 0.675 0.44 0.437 0.283 0.85 0.90 0.819 0.516 0.529 0.376
+Table 3. Results combining DivClust with CC for various diversity targets DT . We underline DivClust results that outperform the single-
+clustering baseline CC, and note with bold the best results for each metric across all methods and diversity levels. We emphasize that the
+NMI in this table measures the similarity between the single clustering produced by each method and the ground truth classes. The NMI
+values representing inter-clustering similarity DR in ensembles produced by DivClust for the same experiments are presented in Tab. 2.
+results only for the hybrid aggregation method DivClust C,
+which we found to be the most robust. Detailed results for
+all three approaches are provided in supplementary Tab. 5.
+4.2. Results
+Initially, we apply IIC, PICA and CC on CIFAR10, and
+present the outcomes in Tab. 1. We find that, for all three
+frameworks, DivClust effectively controls diversity, as DR
+is consistently close to or lower than DT . Furthermore,
+results indicate that DivClust is necessary to produce di-
+verse clusterings in deep clustering frameworks, as, without
+it, they tend to converge to near identical solutions (when
+DT = 1, DR → 1). Regarding cluster separability, assign-
+ment confidence CN Fremains high for various diversity
+targets DT , despite the increased complexity of optimizing
+both the main deep clustering loss and DivClust’s objective.
+Finally, we observe that, for most diversity targets DT , the
+mean and max. accuracy, as well as the consensus cluster-
+ing accuracy produced by the aggregation methodDivClust
+C, increase relative to the single clustering model. Notably,
+consensus clustering accuracy is higher than the mean clus-
+tering accuracy for most cases, which highlights the effec-
+tiveness of our approach. We stress that identifying cluster-
+ings in the ensemble whose performance matches the mean
+or max. accuracy is not trivial, which is why consensus
+clustering is necessary to reach a single clustering solution.
+Having established that DivClust is effective across
+frameworks, we focus on CC and apply it on CIFAR10, CI-
+FAR100, ImageNet-Dogs and Imagenet-10. We compare
+DivClust with the standard implementation of CC, which is
+trained to learn a single clustering ( CC), as well as with
+alternative methods of ensemble clustering. Specifically,
+we apply the typical methods of ensemble generation by
+extracting the features learned by the single-clustering CC
+model and running K-means 20 times on the entire dataset
+(CC-Kmeans), on random subsets of the dataset ( CC-
+Kmeans/S) and on random subsets of the feature space
+(CC-Kmeans/F), following [3]. In all three cases, SCCBG
+3424
+
+is used to aggregate the resulting clusterings. Furthermore,
+we compare with DeepCluE [27], to the best of our knowl-
+edge the only other work that examines consensus cluster-
+ing in the context of deep clustering, and which is also built
+on top of CC, allowing for a fair comparison. We note
+that DeepCluE is not mutually exclusive with DivClust, and
+could be used jointly with it.
+Inter-clustering similarity scores DR for this set of ex-
+periments are presented in Tab. 2, where it is seen that Div-
+Clust successfully controls diversity. Results for consensus
+clustering, the main task for which DivClust is intended, are
+presented in Tab. 3 for CC across 4 datasets, where we also
+include results from other deep clustering frameworks for
+reference. Detailed results, including aggregation methods
+DivClust A and DivClust B, as well as mean/max scores
+for DivClust’s clustering ensembles, are provided in sup-
+plementary Tab. 5. Results in Tab. 3 demonstrate that,
+for most diversity targets DT , DivClust outperforms the
+single-clustering baseline CC and typical ensemble gener-
+ation methods, and is competitive with the alternative con-
+sensus clustering method DeepCluE. Notably, DivClust is
+competitive with the baseline across diversity levels. This
+robustness is very significant, given that identifying what
+properties (including diversity) lead to optimal outcomes in
+clustering ensembles is an open problem [15, 22].
+To summarize, the results of Tabs. 1 to 3 demonstrate
+that DivClust: a) effectively controls inter-clustering diver-
+sity in deep clustering frameworks in accordance with user-
+defined objectives, b) does not degrade the quality of the
+clusterings and in fact produces better solutions than single-
+clustering models, and c), it can be used with consensus
+clustering to identify single-clustering solutions superior to
+those of the corresponding single-clustering frameworks.
+5. Discussion
+5.1. Diversity Control & Consensus Clustering Per-
+formance
+Results presented in Sec. 4 demonstrate the effectiveness
+of DivClust both in controlling inter-clustering diversity and
+in producing clustering ensembles that lead to consensus
+clustering outcomes superior to single clustering baselines.
+Specifically, Tabs. 1 and 2 show that the inter-clustering
+similarity DR of ensembles produced by DivClust is con-
+sistently lower than the targets DT . In the few cases where
+DR ≥ DT , it is by very small margins (the greatest de-
+viation was +0.017), which may be attributed to our use
+of a memory bank to estimate DR for the update rule of
+the threshold d. Regarding consensus clustering accuracy,
+despite the sensitivity of consensus clustering to the prop-
+erties of the ensembles and, specifically, to different inter-
+clustering diversity levels, our method proves particularly
+robust to varying the diversity targets DT , outperforming
+baselines for most settings. This indicates that DivClust
+learns clusterings with a good quality-diversity trade-off
+and can be reliably used for consensus clustering.
+Finally, we note that DivClust’s ability to explicitly con-
+trol inter-clustering diversity can facilitate future research
+on the impact of diversity in clustering ensembles and to-
+ward methodologies that determine desirable diversity lev-
+els for specific settings [51].
+5.2. Complexity & Computational Cost
+The complexity of DivClust’s objective is O(nK 2C 2),
+where n is the batch size, K is the number of cluster-
+ings, and C is the number of clusters in each clustering.
+Importantly, the cost of DivClust relates only to the com-
+putation of the loss and the additional projection heads,
+and is therefore fixed for fixed n, K, C values, regardless
+of model size and data dimensionality, which are gener-
+ally the computational bottleneck in Deep Learning appli-
+cations. Therefore, DivClust is scalable to large datasets.
+Finally, we note that, in practice, the computational over-
+head introduced by DivClust is minimal. Specifically, for
+experiments in this work, DivClust learned ensembles with
+K = 20clusterings, with training time increasing between
+10%-50% relative to the time it took to train the baseline
+single-clustering models. Contrasted with the alternative of
+training a single-clustering model 20 times (which would
+not allow for controlling diversity), DivClust provides an
+efficient approach for applying consensus clustering with
+deep clustering frameworks. A detailed analysis on com-
+plexity and runtimes is provided in supplementary Sec. 3.
+6. Conclusion
+We introduce DivClust, a method that can be incorpo-
+rated into existing deep clustering frameworks to learn mul-
+tiple clusterings while controlling inter-clustering diversity.
+To the best of our knowledge, this is the first method that can
+explicitly control inter-clustering diversity based on user-
+defined targets, and that is compatible with deep clustering
+frameworks that learn features and clusters end-to-end. Our
+experiments, conducted with multiple datasets and deep
+clustering frameworks, confirm the effectiveness of Div-
+Clust in controlling inter-clustering diversity and its adapt-
+ability, in terms of it being compatible with various frame-
+works without requiring modifications and/or hyperparam-
+eter tuning. Furthermore, results demonstrate that DivClust
+learns high quality clusterings, which, in the context of con-
+sensus clustering, lead to improved performance compared
+to single clustering baselines and alternative ensemble clus-
+tering methods.
+Acknowledgments: This work was supported by the EU
+H2020 AI4Media No. 951911 project.
+3425
+
+References
+[1] Yuki M. Asano, Christian Rupprecht, and Andrea Vedaldi.
+Self-labelling via simultaneous clustering and representation
+learning. In International Conference on Learning Repre-
+sentations (ICLR), 2020. 2, 3
+[2] Eric Bae and James Bailey. Coala: A novel approach for
+the extraction of an alternate clustering of high quality and
+high dissimilarity. InSixth International Conference on Data
+Mining (ICDM’06), pages 53–62. IEEE, 2006. 3
+[3] Tossapon Boongoen and Natthakan Iam-On. Cluster ensem-
+bles: A survey of approaches with recent extensions and ap-
+plications. Computer Science Review, 28:1–25, 2018. 1, 3,
+7
+[4] Xiaochun Cao, Changqing Zhang, Huazhu Fu, Si Liu, and
+Hua Zhang. Diversity-induced multi-view subspace cluster-
+ing. In Proceedings of the IEEE conference on computer
+vision and pattern recognition, pages 586–594, 2015. 3
+[5] Mathilde Caron, Piotr Bojanowski, Armand Joulin, and
+Matthijs Douze. Deep clustering for unsupervised learning
+of visual features. In Proceedings of the European Confer-
+ence on Computer Vision (ECCV), pages 132–149, 2018. 2
+[6] Rich Caruana, Mohamed Elhawary, Nam Nguyen, and Casey
+Smith. Meta clustering. In Sixth International Conference on
+Data Mining (ICDM’06), pages 107–118. IEEE, 2006. 3
+[7] Jianlong Chang, Yiwen Guo, Lingfeng Wang, Gaofeng
+Meng, Shiming Xiang, and Chunhong Pan. Deep discrimi-
+native clustering analysis. arXiv preprint arXiv:1905.01681,
+2019. 2
+[8] Jianlong Chang, Lingfeng Wang, Gaofeng Meng, Shiming
+Xiang, and Chunhong Pan. Deep adaptive image cluster-
+ing. In Proceedings of the IEEE international conference on
+computer vision, pages 5879–5887, 2017. 2, 6
+[9] Ying Cui, Xiaoli Z Fern, and Jennifer G Dy. Non-redundant
+multi-view clustering via orthogonalization. InSeventh IEEE
+International Conference on Data Mining (ICDM 2007) ,
+pages 133–142. IEEE, 2007. 3
+[10] Ian Davidson and Zijie Qi. Finding alternative clusterings
+using constraints. In 2008 Eighth IEEE International Con-
+ference on Data Mining, pages 773–778. IEEE, 2008. 3
+[11] Aniket Anand Deshmukh, Jayanth Reddy Regatti, Eren
+Manavoglu, and Urun Dogan. Representation learning for
+clustering via building consensus. Machine Learning, pages
+1–38, 2022. 2
+[12] Carlotta Domeniconi and Muna Al-Razgan. Weighted clus-
+ter ensembles: Methods and analysis. ACM Transactions on
+Knowledge Discovery from Data (TKDD), 2(4):1–40, 2009.
+3
+[13] Sandrine Dudoit and Jane Fridlyand. Bagging to improve
+the accuracy of a clustering procedure. Bioinformatics,
+19(9):1090–1099, 2003. 3
+[14] Xiaoli Z Fern and Carla E Brodley. Random projection for
+high dimensional data clustering: A cluster ensemble ap-
+proach. In Proceedings of the 20th international conference
+on machine learning (ICML-03), pages 186–193, 2003. 1, 3
+[15] Xiaoli Z Fern and Wei Lin. Cluster ensemble selection. Sta-
+tistical Analysis and Data Mining: The ASA Data Science
+Journal, 1(3):128–141, 2008. 1, 2, 3, 8
+[16] Ana LN Fred and Anil K Jain. Combining multiple clus-
+terings using evidence accumulation. IEEE transactions on
+pattern analysis and machine intelligence , 27(6):835–850,
+2005. 3
+[17] Reza Ghaemi, Md Nasir Sulaiman, Hamidah Ibrahim, and
+Norwati Mustapha. A survey: clustering ensembles tech-
+niques. International Journal of Computer and Information
+Engineering, 3(2):365–374, 2009. 1, 3
+[18] Keyvan Golalipour, Ebrahim Akbari, Seyed Saeed Hamidi,
+Malrey Lee, and Rasul Enayatifar. From clustering to clus-
+tering ensemble selection: A review. Engineering Applica-
+tions of Artificial Intelligence, 104:104388, 2021. 1, 3
+[19] Jean-Bastien Grill, Florian Strub, Florent Altch ´e, Corentin
+Tallec, Pierre Richemond, Elena Buchatskaya, Carl Doersch,
+Bernardo Avila Pires, Zhaohan Guo, Mohammad Ghesh-
+laghi Azar, et al. Bootstrap your own latent-a new approach
+to self-supervised learning. Advances in neural information
+processing systems, 33:21271–21284, 2020. 2
+[20] Francesco Gullo, Andrea Tagarelli, and Sergio Greco.
+Diversity-based weighting schemes for clustering ensem-
+bles. In Proceedings of the 2009 SIAM international con-
+ference on data mining. SIAM, 2009. 1, 3
+[21] Yuanfan Guo, Minghao Xu, Jiawen Li, Bingbing Ni, Xuanyu
+Zhu, Zhenbang Sun, and Yi Xu. Hcsc: Hierarchical con-
+trastive selective coding. In Proceedings of the IEEE/CVF
+Conference on Computer Vision and Pattern Recognition ,
+pages 9706–9715, 2022. 2
+[22] Stefan T Hadjitodorov, Ludmila I Kuncheva, and Ludmila P
+Todorova. Moderate diversity for better cluster ensembles.
+Information Fusion, 7(3):264–275, 2006. 1, 2, 3, 8
+[23] Philip Haeusser, Johannes Plapp, Vladimir Golkov, Elie Al-
+jalbout, and Daniel Cremers. Associative deep clustering:
+Training a classification network with no labels. In German
+Conference on Pattern Recognition, pages 18–32. Springer,
+2018. 2
+[24] Seyed Saeed Hamidi, Ebrahim Akbari, and Homayun Mota-
+meni. The impact of diversity on clustering ensemble using
+chiˆ2 criterion. International Journal of Nonlinear Analysis
+and Applications, 2022. 1, 3
+[25] Juhua Hu and Jian Pei. Subspace multi-clustering: a review.
+Knowledge and information systems , 56(2):257–284, 2018.
+3
+[26] Juhua Hu, Qi Qian, Jian Pei, Rong Jin, and Shenghuo Zhu.
+Finding multiple stable clusterings. Knowledge and Infor-
+mation Systems, 51(3):991–1021, 2017. 3
+[27] Dong Huang, Ding-Hua Chen, Xiangji Chen, Chang-Dong
+Wang, and Jian-Huang Lai. Deepclue: Enhanced image clus-
+tering via multi-layer ensembles in deep neural networks.
+arXiv preprint arXiv:2206.00359, 2022. 3, 8
+[28] Dong Huang, Chang-Dong Wang, and Jian-Huang Lai. Lo-
+cally weighted ensemble clustering. IEEE transactions on
+cybernetics, 48(5):1460–1473, 2017. 3
+[29] Dong Huang, Chang-Dong Wang, Hongxing Peng, Jian-
+huang Lai, and Chee-Keong Kwoh. Enhanced ensemble
+clustering via fast propagation of cluster-wise similarities.
+IEEE Transactions on Systems, Man, and Cybernetics: Sys-
+tems, 51(1):508–520, 2018. 3
+3426
+
+[30] Dong Huang, Chang-Dong Wang, Jian-Sheng Wu, Jian-
+Huang Lai, and Chee-Keong Kwoh. Ultra-scalable spectral
+clustering and ensemble clustering. IEEE Transactions on
+Knowledge and Data Engineering , 32(6):1212–1226, 2019.
+3
+[31] Jiabo Huang and Shaogang Gong. Deep clustering by se-
+mantic contrastive learning. In 33rd British Machine Vision
+Conference 2022, BMVC 2022, London, UK, November 21-
+24, 2022. BMV A Press, 2022. 3
+[32] Jiabo Huang, Shaogang Gong, and Xiatian Zhu. Deep se-
+mantic clustering by partition confidence maximisation. In
+Proceedings of the IEEE/CVF Conference on Computer Vi-
+sion and Pattern Recognition, pages 8849–8858, 2020. 2, 5,
+6
+[33] Zhizhong Huang, Jie Chen, Junping Zhang, and Hongming
+Shan. Learning representation for clustering via prototype
+scattering and positive sampling. IEEE Transactions on Pat-
+tern Analysis and Machine Intelligence, 2022. 2
+[34] Natthakan Iam-On, Tossapon Boongoen, Simon Garrett, and
+Chris Price. A link-based approach to the cluster ensemble
+problem. IEEE transactions on pattern analysis and machine
+intelligence, 33(12):2396–2409, 2011. 1
+[35] Prateek Jain, Raghu Meka, and Inderjit S Dhillon. Simul-
+taneous unsupervised learning of disparate clusterings. Sta-
+tistical Analysis and Data Mining: The ASA Data Science
+Journal, 1(3):195–210, 2008. 3
+[36] Pan Ji, Tong Zhang, Hongdong Li, Mathieu Salzmann, and
+Ian Reid. Deep subspace clustering networks. Advances in
+neural information processing systems, 30, 2017. 2
+[37] Xu Ji, Jo ˜ao F Henriques, and Andrea Vedaldi. Invariant
+information clustering for unsupervised image classification
+and segmentation. In Proceedings of the IEEE International
+Conference on Computer Vision, pages 9865–9874, 2019. 2,
+3, 5, 6
+[38] Yuheng Jia, Sirui Tao, Ran Wang, and Yongheng
+Wang. Ensemble clustering via co-association matrix self-
+enhancement. IEEE Transactions on Neural Networks and
+Learning Systems, 2023. 3
+[39] Alex Krizhevsky, Geoffrey Hinton, et al. Learning multiple
+layers of features from tiny images. 2009. 6
+[40] Ludmila I Kuncheva and Stefan Todorov Hadjitodorov. Us-
+ing diversity in cluster ensembles. In 2004 IEEE interna-
+tional conference on systems, man and cybernetics (IEEE
+Cat. No. 04CH37583) , volume 2, pages 1214–1219. IEEE,
+2004. 3
+[41] Ludmila I Kuncheva and Dmitry P Vetrov. Evaluation of sta-
+bility of k-means cluster ensembles with respect to random
+initialization. IEEE transactions on pattern analysis and ma-
+chine intelligence, 28(11):1798–1808, 2006. 3
+[42] Junnan Li, Pan Zhou, Caiming Xiong, and Steven C.H. Hoi.
+Prototypical contrastive learning of unsupervised representa-
+tions. In ICLR, 2021. 2
+[43] Tao Li, Chris Ding, and Michael I Jordan. Solving consensus
+and semi-supervised clustering problems using nonnegative
+matrix factorization. In Seventh IEEE International Confer-
+ence on Data Mining (ICDM 2007) , pages 577–582. IEEE,
+2007. 3
+[44] Yunfan Li, Peng Hu, Zitao Liu, Dezhong Peng, Joey Tianyi
+Zhou, and Xi Peng. Contrastive clustering. In 2021 AAAI
+Conference on Artificial Intelligence (AAAI), 2021. 2, 3, 5, 6
+[45] Hongfu Liu, Zhiqiang Tao, and Zhengming Ding. Consensus
+clustering: an embedding perspective, extension and beyond.
+arXiv preprint arXiv:1906.00120, 2019. 1, 3
+[46] Jiaqi Ma, Yipeng Zhang, and Lefei Zhang. Discriminative
+subspace matrix factorization for multiview data clustering.
+Pattern Recognition, 111:107676. 3
+[47] Dominik Mautz, Wei Ye, Claudia Plant, and Christian B¨ohm.
+Discovering non-redundant k-means clusterings in optimal
+subspaces. In Proceedings of the 24th ACM SIGKDD Inter-
+national Conference on Knowledge Discovery & Data Min-
+ing, pages 1973–1982, 2018. 3
+[48] Lukas Miklautz, Dominik Mautz, Muzaffer Can Altinigneli,
+Christian B ¨ohm, and Claudia Plant. Deep embedded non-
+redundant clustering. In Proceedings of the AAAI Confer-
+ence on Artificial Intelligence, volume 34, pages 5174–5181,
+2020. 1, 3
+[49] Chuang Niu, Hongming Shan, and Ge Wang. Spice: Seman-
+tic pseudo-labeling for image clustering. IEEE Transactions
+on Image Processing, 31:7264–7278, 2022. 2
+[50] Chuang Niu, Jun Zhang, Ge Wang, and Jimin Liang. Gat-
+cluster: Self-supervised gaussian-attention network for im-
+age clustering. In European Conference on Computer Vision,
+pages 735–751. Springer, 2020. 2
+[51] Milton Pividori, Georgina Stegmayer, and Diego H Milone.
+Diversity control for improving the analysis of consensus
+clustering. Information Sciences, 361:120–134, 2016. 1, 2,
+3, 8
+[52] Jayanth Reddy Regatti, Aniket Anand Deshmukh, Eren
+Manavoglu, and Urun Dogan. Consensus clustering with
+unsupervised representation learning. In 2021 International
+Joint Conference on Neural Networks (IJCNN). IEEE, 2021.
+2, 3
+[53] Yuming Shen, Ziyi Shen, Menghan Wang, Jie Qin, Philip
+Torr, and Ling Shao. You never cluster alone. Advances in
+Neural Information Processing Systems, 34, 2021. 3
+[54] Alexander Strehl and Joydeep Ghosh. Cluster ensembles—a
+knowledge reuse framework for combining multiple parti-
+tions. Journal of machine learning research , 3(Dec):583–
+617, 2002. 3
+[55] Zhiqiang Tao, Hongfu Liu, Sheng Li, Zhengming Ding, and
+Yun Fu. From ensemble clustering to multi-view clustering.
+In IJCAI, 2017. 3
+[56] Tsung Wei Tsai, Chongxuan Li, and Jun Zhu. Mice: Mix-
+ture of contrastive experts for unsupervised image cluster-
+ing. In International Conference on Learning Representa-
+tions, 2020. 3
+[57] Wouter Van Gansbeke, Simon Vandenhende, Stamatios
+Georgoulis, Marc Proesmans, and Luc Van Gool. Scan:
+Learning to classify images without labels. In European
+Conference on Computer Vision , pages 268–285. Springer,
+2020. 2, 3
+[58] Ali Varamesh and Tinne Tuytelaars. Mix’em: Unsupervised
+image classification using a mixture of embeddings. In Pro-
+ceedings of the Asian Conference on Computer Vision, 2020.
+2, 5
+3427
+
+[59] Xing Wang, Jun Wang, Carlotta Domeniconi, Guoxian Yu,
+Guoqiang Xiao, and Maozu Guo. Multiple independent sub-
+space clusterings. In Proceedings of the AAAI Conference on
+Artificial Intelligence, volume 33, pages 5353–5360, 2019. 3
+[60] Xing Wang, Guoxian Yu, Carlotta Domeniconi, Jun Wang,
+Zhiwen Yu, and Zili Zhang. Multiple co-clusterings. In2018
+IEEE International Conference on Data Mining (ICDM) ,
+pages 1308–1313. IEEE, 2018. 3
+[61] Shaowei Wei, Jun Wang, Guoxian Yu, Carlotta Domeniconi,
+and Xiangliang Zhang. Deep incomplete multi-view multiple
+clusterings. In 2020 IEEE International Conference on Data
+Mining (ICDM), pages 651–660. IEEE, 2020. 1, 3
+[62] Shaowei Wei, Jun Wang, Guoxian Yu, Carlotta Domeni-
+coni, and Xiangliang Zhang. Multi-view multiple cluster-
+ings using deep matrix factorization. In Proceedings of the
+AAAI Conference on Artificial Intelligence, volume 34, pages
+6348–6355, 2020. 3
+[63] Jianlong Wu, Keyu Long, Fei Wang, Chen Qian, Cheng Li,
+Zhouchen Lin, and Hongbin Zha. Deep comprehensive cor-
+relation mining for image clustering. In Proceedings of the
+IEEE/CVF International Conference on Computer Vision ,
+pages 8150–8159, 2019. 2
+[64] Junyuan Xie, Ross Girshick, and Ali Farhadi. Unsupervised
+deep embedding for clustering analysis. In International
+conference on machine learning , pages 478–487. PMLR,
+2016. 2
+[65] Kouta Nakata Yaling Tao, Kentaro Takagi. Clustering-
+friendly representation learning via instance discrimination
+and feature decorrelation. Proceedings of ICLR 2021, 2021.
+2
+[66] Jianwei Yang, Devi Parikh, and Dhruv Batra. Joint unsuper-
+vised learning of deep representations and image clusters. In
+Proceedings of the IEEE conference on computer vision and
+pattern recognition, pages 5147–5156, 2016. 2
+[67] Sen Yang and Lijun Zhang. Non-redundant multiple cluster-
+ing by nonnegative matrix factorization. Machine Learning,
+106(5):695–712, 2017. 3
+[68] Shixin Yao, Guoxian Yu, Jun Wang, Carlotta Domeniconi,
+and Xiangliang Zhang. Multi-view multiple clustering. In
+Proceedings of the Twenty-Eighth International Joint Con-
+ference on Artificial Intelligence, IJCAI-19 , pages 4121–
+4127. International Joint Conferences on Artificial Intelli-
+gence Organization, 7 2019. 3
+[69] Wei Ye, Samuel Maurus, Nina Hubig, and Claudia Plant.
+Generalized independent subspace clustering. In 2016 IEEE
+16th International Conference on Data Mining (ICDM) ,
+pages 569–578. IEEE, 2016. 3
+[70] Zhong Zhang, Chongming Gao, Chongzhi Liu, Qinli
+Yang, and Junming Shao. Towards robust arbitrarily ori-
+ented subspace clustering. In International Conference on
+Database Systems for Advanced Applications , pages 276–
+291. Springer, 2019. 3
+[71] Junjie Zhao, Donghuan Lu, Kai Ma, Yu Zhang, and Yefeng
+Zheng. Deep image clustering with category-style represen-
+tation. In European Conference on Computer Vision, pages
+54–70. Springer, 2020. 2
+[72] Huasong Zhong, Jianlong Wu, Chong Chen, Jianqiang
+Huang, Minghua Deng, Liqiang Nie, Zhouchen Lin, and
+Xian-Sheng Hua. Graph contrastive clustering. In Proceed-
+ings of the IEEE/CVF International Conference on Com-
+puter Vision, pages 9224–9233, 2021. 3
+[73] Peng Zhou, Liang Du, and Xuejun Li. Self-paced consensus
+clustering with bipartite graph. InProceedings of the Twenty-
+Ninth International Conference on International Joint Con-
+ferences on Artificial Intelligence , pages 2133–2139, 2021.
+1, 3, 6
+[74] Peng Zhou, Liang Du, Yi-Dong Shen, and Xuejun Li. Tri-
+level robust clustering ensemble with multiple graph learn-
+ing. In Proceedings of the AAAI Conference on Artificial
+Intelligence, volume 35, pages 11125–11133, 2021. 3
+[75] Peng Zhou, Liang Du, Hanmo Wang, Lei Shi, and Yi-Dong
+Shen. Learning a robust consensus matrix for clustering
+ensemble via kullback-leibler divergence minimization. In
+Twenty-Fourth International Joint Conference on Artificial
+Intelligence, 2015. 3
+3428

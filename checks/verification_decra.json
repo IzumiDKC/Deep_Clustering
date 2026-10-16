@@ -1,0 +1,26 @@
+{
+  "created_utc": "2026-10-13T01:24:16.219317+00:00",
+  "status": "passed",
+  "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]",
+  "numpy": "2.5.1",
+  "gradient_checks": 117,
+  "gradient_groups": {
+    "backbone": 96,
+    "adaptive": 12,
+    "centers": 9
+  },
+  "max_gradient_relative_error": 3.1607643205255277e-07,
+  "objective": "2*MSE(main,X)+0.6*MSE(auxiliary,main)+0.1*KL_mean(N*K)",
+  "checks": [
+    "independent scalar source objective",
+    "two decoder branches, no detach",
+    "affine adaptive layer and centroid gradients",
+    "shared decoder forward parity",
+    "backbone unchanged on adaptive initialization",
+    "deterministic full training",
+    "finite parameters and losses",
+    "prediction matches final Q"
+  ],
+  "scope": "DECRA public-code mechanism adapted to shared NumPy backbone; not original author execution",
+  "author_code": "https://github.com/lml-mengli/DECRA/blob/main/decra.py"
+}

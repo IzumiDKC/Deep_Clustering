@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "retrieved_on": "2026-10-13",
+  "policy": {
+    "main_table_ranking_system": "SCImago SJR",
+    "main_table_reference_year": 2024,
+    "main_table_scope": "Best quartile across subject categories",
+    "journal_only": true,
+    "publication_year_may_differ_from_ranking_year": true,
+    "description_vi": "Bảng chính dùng cùng năm tham chiếu SJR 2024 và best quartile của tạp chí. Đây không phải Q của từng bài, không nhất thiết là Q tại năm xuất bản và không phải Q riêng ngành AI. Hội nghị không được gán Q tạp chí. Bằng chứng từ nội dung được lập chỉ mục trên tên miền SCImago; truy cập trực tiếp hiện bị 403/bot_blocked. Chưa xác minh nguồn primary thì giữ unknown."
+  },
+  "records": [
+    {
+      "paper_id": "P07",
+      "venue": "Neural Processing Letters",
+      "quartile": "Q2",
+      "quartile_verified": true,
+      "ranking_year": 2024,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Best quartile across subject categories",
+      "source_url": "https://www.scimagojr.com/journalrank.php?country=NL&min=1&min_type=cd&ord=desc&order=titem&page=11&total_size=2130",
+      "evidence_fields": {
+        "sjr": 0.672,
+        "h_index": 72,
+        "total_docs_2024": 244,
+        "row_rank_in_filtered_table": 208,
+        "table_year_headers": ["Total Docs. (2024)", "Total Refs. (2024)", "Ref. / Doc. (2024)"],
+        "table_subject_filter": "All subject areas",
+        "table_country_filter": "Netherlands",
+        "source_type": "journal"
+      },
+      "access_mode": "first_party_indexed_live_403",
+      "direct_fetch_status": "bot_blocked",
+      "retrieved_on": "2026-10-13",
+      "source_id": "24806",
+      "note_vi": "DECRA xuất bản 2024; bảng này xác minh SJR best quartile 2024 Q2, không xác minh từng dòng Q ngành AI và không sử dụng JCR thay SJR."
+    },
+    {
+      "paper_id": "P17",
+      "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+      "quartile": "Q1",
+      "quartile_verified": true,
+      "ranking_year": 2024,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Best quartile across subject categories",
+      "source_url": "https://www.scimagojr.com/journalrank.php?country=Northern+America&ord=desc&order=tc&page=2&total_size=5171&wos=true",
+      "corroborating_source_url": "https://www.scimagojr.com/journalrank.phphttp%3A/www.scimagojr.com/journalrank.php?area=1700&country=&ord=desc&order=h",
+      "evidence_fields": {
+        "sjr": 3.910,
+        "h_index": 435,
+        "total_docs_2024": 812,
+        "row_rank_in_filtered_table": 22,
+        "table_year_headers": ["Total Docs. (2024)", "Total Refs. (2024)", "Ref. / Doc. (2024)"],
+        "table_subject_filter": "All subject areas",
+        "table_region_filter": "Northern America",
+        "source_type": "journal"
+      },
+      "access_mode": "first_party_indexed_live_403",
+      "direct_fetch_status": "bot_blocked",
+      "retrieved_on": "2026-10-13",
+      "source_id": "24254",
+      "note_vi": "ProPos dùng năm issue 2023 (DOI early access 2022). Q1 trong bảng chính là tham chiếu SJR 2024, không được gọi là Q tại năm 2023 nếu chưa xác minh năm đó."
+    },
+    {
+      "paper_id": "P31",
+      "venue": "Pattern Recognition Letters",
+      "quartile": "Q1",
+      "quartile_verified": true,
+      "ranking_year": 2024,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Best quartile across subject categories",
+      "source_url": "https://www.scimagojr.com/journalsearch.php/journalsearch.php?q=24825&tip=sid",
+      "evidence_fields": {
+        "sjr": 1.005,
+        "profile_heading": "SJR 2024",
+        "profile_best_quartile": "Q1",
+        "source_type": "Journals"
+      },
+      "access_mode": "first_party_indexed_live_403",
+      "direct_fetch_status": "bot_blocked",
+      "retrieved_on": "2026-10-13",
+      "source_id": "24825",
+      "note_vi": "Source 24825 là Pattern Recognition Letters, khác Pattern Recognition (24823). DKM xuất bản 2020: best quartile 2024 Q1 và AI 2020 Q2 là hai phép thống kê khác nhau, xem category_records; không đưa AI 2020 Q2 vào tổng best quartile 2024."
+    },
+    {
+      "paper_id": "P32",
+      "venue": "ACM Computing Surveys",
+      "quartile": "Q1",
+      "quartile_verified": true,
+      "ranking_year": 2024,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Best quartile across subject categories",
+      "source_url": "https://www.scimagojr.com/journalrank.php?country=OECD&page=12&total_size=24095",
+      "corroborating_source_url": "https://www.scimagojr.com/journalrank.php?country=Northern+America&min=100&min_type=cd&ord=desc&order=rpd&page=2&total_size=5027",
+      "evidence_fields": {
+        "sjr": 5.797,
+        "h_index": 232,
+        "total_docs_2024": 424,
+        "row_rank_in_filtered_table": 221,
+        "table_year_headers": ["Total Docs. (2024)", "Total Refs. (2024)", "Ref. / Doc. (2024)"],
+        "table_subject_filter": "All subject areas",
+        "table_region_filter": "OECD",
+        "source_type": "journal",
+        "metrics_based_on_scopus_as_of": "March 2025"
+      },
+      "access_mode": "first_party_indexed_live_403",
+      "direct_fetch_status": "bot_blocked",
+      "retrieved_on": "2026-10-13",
+      "source_id": "23038",
+      "note_vi": "SJR 2024 Q1 là tham chiếu tạp chí, độc lập với việc bài DOI 10.1145/3689036 có online 2024 và issue 2025. Chỉ thống kê một bài cho hai mốc xuất bản."
+    }
+  ],
+  "category_records": [
+    {
+      "paper_id": "P31",
+      "venue": "Pattern Recognition Letters",
+      "quartile": "Q2",
+      "ranking_year": 2020,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Subject category quartile",
+      "ranking_category": "Artificial Intelligence",
+      "source_url": "https://www.scimagojr.com/journalsearch.php/journalsearch.php?q=24825&tip=sid",
+      "evidence_fields": {"category_row_year": 2020, "category_row_quartile": "Q2"},
+      "quartile_verified": true,
+      "access_mode": "first_party_indexed_live_403",
+      "retrieved_on": "2026-10-13",
+      "include_in_main_2024_best_quartile_counts": false
+    },
+    {
+      "paper_id": "P31",
+      "venue": "Pattern Recognition Letters",
+      "quartile": "Q2",
+      "ranking_year": 2024,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Subject category quartile",
+      "ranking_category": "Artificial Intelligence",
+      "source_url": "https://www.scimagojr.com/journalsearch.php/journalsearch.php?q=24825&tip=sid",
+      "evidence_fields": {"category_row_year": 2024, "category_row_quartile": "Q2"},
+      "quartile_verified": true,
+      "access_mode": "first_party_indexed_live_403",
+      "retrieved_on": "2026-10-13",
+      "include_in_main_2024_best_quartile_counts": false
+    },
+    {
+      "paper_id": "P31",
+      "venue": "Pattern Recognition Letters",
+      "quartile": "Q1",
+      "ranking_year": 2024,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Subject category quartile",
+      "ranking_category": "Computer Vision and Pattern Recognition",
+      "source_url": "https://www.scimagojr.com/journalsearch.php/journalsearch.php?q=24825&tip=sid",
+      "evidence_fields": {"category_row_year": 2024, "category_row_quartile": "Q1"},
+      "quartile_verified": true,
+      "access_mode": "first_party_indexed_live_403",
+      "retrieved_on": "2026-10-13",
+      "include_in_main_2024_best_quartile_counts": false
+    }
+  ],
+  "unknown_records": [
+    {
+      "paper_id": "P21",
+      "venue": "Machine Learning",
+      "quartile": "unknown",
+      "quartile_verified": false,
+      "ranking_year": 2024,
+      "ranking_system": "SCImago SJR",
+      "ranking_scope": "Best quartile across subject categories",
+      "source_url": "https://www.scimagojr.com/journalsearch.php?q=24775&tip=sid",
+      "source_id": "24775",
+      "access_mode": "primary_unavailable_secondary_claim_only",
+      "direct_fetch_status": "bot_blocked",
+      "retrieved_on": "2026-10-13",
+      "unverified_claim": {
+        "source_url": "https://raw.githubusercontent.com/RusiaL/SCImago/main/data/ScimagoJR-2024-SE-jour.csv",
+        "source_type": "third_party_csv_mirror",
+        "sjr": 1.147,
+        "best_quartile": "Q1",
+        "h_index": 175,
+        "total_docs_2024": 287,
+        "category_quartiles": {"Artificial Intelligence": "Q1", "Software": "Q1"},
+        "accepted_as_verified_primary_evidence": false
+      },
+      "note_vi": "Chưa lấy được nội dung primary đúng tên tạp chí và năm 2024 qua profile, danh sách, export hoặc kết quả lập chỉ mục. CSV mirror chỉ dùng tìm source ID và định hướng tra cứu, không dùng xác minh Q. Không nhầm với Journal of Machine Learning Research hay Machine Learning: Science and Technology. DCSS xuất bản 2026; không suy diễn Q2026 từ claim Q2024/Q2025."
+    }
+  ]
+}

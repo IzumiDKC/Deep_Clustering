@@ -1,0 +1,14 @@
+[
+  {
+    "name": "DEC_2016",
+    "status": "downloaded and reviewed",
+    "source": "https://proceedings.mlr.press/v48/xieb16.pdf",
+    "pages": 10,
+    "sha256": "d0d6b668038fd8d365c89bebe6bfdfbe31e611a71a803e95a0acfdd8b18f6e3f"
+  },
+  {
+    "name": "DECRA/DCSS/BRB",
+    "status": "direct PDF download stopped after network delay; publisher HTML or extracted primary PDF used for method/context review",
+    "full_text_review_complete": false
+  }
+]

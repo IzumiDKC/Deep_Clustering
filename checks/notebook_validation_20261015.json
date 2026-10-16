@@ -1,0 +1,26 @@
+{
+  "validated_on": "2026-10-15",
+  "passed": true,
+  "notebook": "notebooks/demo_4_timeline_verified.ipynb",
+  "executed_code_cells": 15,
+  "errors": 0,
+  "sections": 9,
+  "main_runs": 20,
+  "seeds_per_method": 5,
+  "main_metrics_mean_and_sample_std": "ACC,NMI,ARI,time,pairwiseARI checked against CSV",
+  "additional_dcss_mean_and_std": "ACC,NMI,ARI,pairwiseARI checked against CSV",
+  "paired_idec_minus_dec_pp": "0.1781 +/-0.5708; higher on2/5seeds",
+  "literature_tables": [
+    "IDEC2017Table2",
+    "DECRA2024Tables2-3",
+    "BRB2025Table13, mean+/-SE10seeds"
+  ],
+  "raw_hash_and_log_dump_in_outputs": false,
+  "mismatched_ablation_guard": "passed temperature mismatch branch; no ablation joined",
+  "rerun_dry_run": "passed5commands, preserves explicit parameters, creates survey stats and optional new ablation; no actual retraining in this validation",
+  "local_links_checked": 14,
+  "missing_links": [],
+  "notebook_sha256": "8dc7abbc80572be6b6eb3c5c482f62cdc9abc1fb85c7f2cb59ec16924e5cb00d",
+  "generator_sha256": "3cd79ca2f47a4aa2ce9aa2ccc5e42bf9565d1afa79d0fc5ebed545c18d8f7ba0",
+  "language_review": "Technical terms explained in Vietnamese; entropy bit/log2, affine, residual, RBF, seed, epoch, KL/MSE; raw metadata dumps removed."
+}

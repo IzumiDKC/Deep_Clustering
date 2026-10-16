@@ -1,0 +1,183 @@
+{
+  "total_papers_in_tracker": 32,
+  "papers_listed": 32,
+  "paper_metadata_verified": 32,
+  "publication_types": {
+    "conference": 27,
+    "journal": 5
+  },
+  "paper_kinds": {
+    "method": 31,
+    "survey": 1
+  },
+  "publication_type_percent": {
+    "conference": 84.375,
+    "journal": 15.625
+  },
+  "papers_by_year": {
+    "2016": 2,
+    "2017": 5,
+    "2018": 2,
+    "2019": 1,
+    "2020": 3,
+    "2021": 2,
+    "2022": 1,
+    "2023": 2,
+    "2024": 6,
+    "2025": 6,
+    "2026": 2
+  },
+  "papers_from_2023_onward": 16,
+  "method_families": {
+    "ae_augmentation": 1,
+    "ae_consensus": 1,
+    "ae_kl": 2,
+    "ae_kl_reconstruction": 1,
+    "ae_kmeans": 1,
+    "ae_residual": 1,
+    "ae_self_expression": 1,
+    "ae_soft_kmeans": 1,
+    "ae_soft_silhouette": 1,
+    "agglomerative_joint": 1,
+    "centerless_probability": 1,
+    "confidence_calibration": 1,
+    "density_dynamic_selection": 1,
+    "diverse_consensus": 1,
+    "dual_contrastive": 1,
+    "encoder_reset_reclustering": 1,
+    "generative_mixture": 1,
+    "hard_assignment_regularization": 1,
+    "imbalanced_transport": 1,
+    "interpretable_feature_gates": 1,
+    "mutual_information": 1,
+    "neighbor_consistency": 1,
+    "neighbor_self_boost": 1,
+    "neighbor_self_label": 1,
+    "pretrained_rate_reduction": 1,
+    "probabilistic_graph_cut": 1,
+    "prototype_noncontrastive": 1,
+    "pseudo_label_ssl": 1,
+    "sample_stability": 1,
+    "survey_taxonomy": 1,
+    "swapped_assignment_ssl": 1
+  },
+  "comparison_regimes": {
+    "single_view": 13,
+    "single_view_external_vision_language": 1,
+    "single_view_long_tailed": 1,
+    "single_view_paired_augmentation": 1,
+    "single_view_semantic": 11,
+    "single_view_ssl_representation": 2,
+    "single_view_subspace": 1,
+    "single_view_tabular": 1,
+    "survey_multiple_regimes": 1
+  },
+  "direct_relevance": {
+    "context": 6,
+    "high": 11,
+    "medium": 15
+  },
+  "sampling_protocol": "Purposive candidate catalog, prioritizing public code and relevance; not an estimate of field-wide public-code prevalence",
+  "paper_reported_numeric_summaries": 18,
+  "paper_result_extraction_pending": [
+    "P05",
+    "P10",
+    "P11",
+    "P12",
+    "P13",
+    "P14",
+    "P16",
+    "P17",
+    "P19",
+    "P20",
+    "P22",
+    "P26",
+    "P29"
+  ],
+  "full_text_reviews_completed": 2,
+  "full_text_review_percent": 6.25,
+  "reviewed_publication_types": {
+    "conference": 2
+  },
+  "journal_quartiles": {
+    "Q1": 3,
+    "Q2": 1,
+    "Q3": 0,
+    "Q4": 0
+  },
+  "journal_quartile_unknown": 1,
+  "quartile_denominator_journal_papers": 5,
+  "quartile_verified_journal_papers": 4,
+  "journal_quartile_percent": {
+    "Q1": 60.0,
+    "Q2": 20.0,
+    "Q3": 0.0,
+    "Q4": 0.0
+  },
+  "journal_quartile_unknown_percent": 20.0,
+  "quartile_claims_missing_evidence": [],
+  "journal_ranking_records": [
+    {
+      "paper_id": "P07",
+      "year": "2024",
+      "venue": "Neural Processing Letters",
+      "quartile": "Q2",
+      "ranking_system": "SCImago SJR",
+      "ranking_year": "2024",
+      "ranking_category": "Best quartile across subject categories",
+      "ranking_source": "https://www.scimagojr.com/journalrank.php?country=NL&min=1&min_type=cd&ord=desc&order=titem&page=11&total_size=2130",
+      "quartile_verified": "yes",
+      "quartile_verification_note": "SJR 0.672; journal-best Q2; year2024 identified by table header; first-party indexed evidence; live access HTTP403/bot-blocked; reference ranking year is not necessarily publication year; not JCR"
+    },
+    {
+      "paper_id": "P17",
+      "year": "2023",
+      "venue": "IEEE Transactions on Pattern Analysis and Machine Intelligence",
+      "quartile": "Q1",
+      "ranking_system": "SCImago SJR",
+      "ranking_year": "2024",
+      "ranking_category": "Best quartile across subject categories",
+      "ranking_source": "https://www.scimagojr.com/journalrank.php?country=Northern+America&ord=desc&order=tc&page=2&total_size=5171&wos=true",
+      "quartile_verified": "yes",
+      "quartile_verification_note": "SJR 3.910; journal-best Q1; year2024 identified by table header; first-party indexed evidence; live access HTTP403/bot-blocked; reference ranking year is not necessarily publication year; not JCR"
+    },
+    {
+      "paper_id": "P31",
+      "year": "2020",
+      "venue": "Pattern Recognition Letters",
+      "quartile": "Q1",
+      "ranking_system": "SCImago SJR",
+      "ranking_year": "2024",
+      "ranking_category": "Best quartile across subject categories",
+      "ranking_source": "https://www.scimagojr.com/journalsearch.php/journalsearch.php?q=24825&tip=sid",
+      "quartile_verified": "yes",
+      "quartile_verification_note": "SJR2024 1.005 journal-best Q1; Artificial Intelligence category2024 Q2 (also2020 Q2); CVPR2024 Q1. Main count uses best quartile, not AI-specific. First-party indexed profile; live access403."
+    },
+    {
+      "paper_id": "P32",
+      "year": "2025",
+      "venue": "ACM Computing Surveys",
+      "quartile": "Q1",
+      "ranking_system": "SCImago SJR",
+      "ranking_year": "2024",
+      "ranking_category": "Best quartile across subject categories",
+      "ranking_source": "https://www.scimagojr.com/journalrank.php?country=OECD&page=12&total_size=24095",
+      "quartile_verified": "yes",
+      "quartile_verification_note": "SJR2024 5.797 journal-best Q1; table header TotalDocs2024; first-party indexed table, live access403/bot-blocked; ranking reference year2024 differs issue year2025; not JCR."
+    }
+  ],
+  "journal_ranking_policy": "SCImago SJR best quartile across subject categories; common reference year2024, not necessarily publication year; primary indexed content, direct live access blocked403; conference papers excluded",
+  "journal_ranking_reference_years": [
+    "2024"
+  ],
+  "public_code_papers": 32,
+  "public_code_verified": 32,
+  "public_code_method_papers": 31,
+  "public_resources_survey_papers": 1,
+  "public_code_percent": 100.0,
+  "original_code_smoke_tested": 0,
+  "public_dataset_papers": 15,
+  "dataset_scope_verified": 28,
+  "original_dataset_download_verified": 0,
+  "note": "Tracker rows are listed candidates, not completed full-text reviews. Quartile counts require quartile_verified=yes and system/year/category/source; conference papers are excluded. Dataset_public is a tracker claim; dataset_scope_verified confirms benchmark names only, not licenses or downloads. Public code does not imply successful execution. The independent NumPy demo is separate from original-code smoke tests and full paper reproduction."
+}

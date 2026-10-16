@@ -1,0 +1,9 @@
+{
+  "status": "passed",
+  "dachi_finite_and_changes_centers": true,
+  "dss_expected_selection": true,
+  "same_seed_deterministic": true,
+  "nonempty_training_batches": true,
+  "samples_checked": 250,
+  "scope": "SANE-inspired IDEC adaptation; no original-author reproduction"
+}

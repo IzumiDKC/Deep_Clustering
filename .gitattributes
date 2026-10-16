@@ -1,0 +1,20 @@
+* text=auto
+# Keep Python bytes unchanged: saved experiment records verify source SHA-256.
+*.py -text
+*.md text eol=lf
+*.json text eol=lf
+*.ipynb text eol=lf
+*.csv text eol=lf
+*.html text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+*.pdf binary
+*.docx binary
+*.pptx binary
+*.npz binary
+*.npy binary
+
+# Preserve archived source evidence and third-party license/checksum snapshots.
+/archive/source_snapshots/** -text
+/docs/references/author_sources/** -text

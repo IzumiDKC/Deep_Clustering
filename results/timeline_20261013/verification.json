@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "runs_verified": 20,
+  "dataset_samples": 1797,
+  "same_training_data_all_methods": true,
+  "sha256_training_X": "23a53393488b04f92efc45ebc92767e2dcfdf206ba37a928f497d261e42267d2",
+  "metrics_recomputed_from_predictions": true,
+  "predictions_recomputed_from_saved_models": true,
+  "max_metric_error": 7.632783294297951e-17,
+  "seed_pairs_verified": 40,
+  "summary_and_sample_std_verified": true,
+  "brb_reset_schedule_verified": true,
+  "training_source_hashes_verified": true,
+  "original_training_source_snapshots": {
+    "run_demo.py": "archive/source_snapshots/20261013/run_demo.py"
+  },
+  "original_authors_code": "not executed; independent NumPy demonstration",
+  "reference_comparison": {
+    "matched_runs": 10,
+    "max_absolute_metric_difference": {
+      "acc": 0.0,
+      "nmi": 0.0,
+      "ari": 0.0
+    },
+    "note": "Only common methods with matching training settings; timing rules may differ."
+  }
+}

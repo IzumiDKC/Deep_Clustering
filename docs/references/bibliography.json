@@ -1,0 +1,632 @@
+{
+  "records": [
+    {
+      "paper_id": "P01",
+      "method": "DEC",
+      "title": "Unsupervised Deep Embedding for Clustering Analysis",
+      "authors": [
+        "Junyuan Xie",
+        "Ross Girshick",
+        "Ali Farhadi"
+      ],
+      "source_url": "https://proceedings.mlr.press/v48/xieb16.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "478",
+      "last_page": "487",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P02",
+      "method": "IDEC",
+      "title": "Improved Deep Embedded Clustering with Local Structure Preservation",
+      "authors": [
+        "Xifeng Guo",
+        "Long Gao",
+        "Xinwang Liu",
+        "Jianping Yin"
+      ],
+      "source_url": "https://www.ijcai.org/proceedings/2017/243",
+      "accessed_on": "2026-10-13",
+      "first_page": "1753",
+      "last_page": "1759",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P03",
+      "method": "DCN",
+      "title": "Towards K-means-friendly Spaces: Simultaneous Deep Learning and Clustering",
+      "authors": [
+        "Bo Yang",
+        "Xiao Fu",
+        "Nicholas D. Sidiropoulos",
+        "Mingyi Hong"
+      ],
+      "source_url": "https://proceedings.mlr.press/v70/yang17b.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "3861",
+      "last_page": "3870",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P04",
+      "method": "DEC-DA",
+      "title": "Deep Embedded Clustering with Data Augmentation",
+      "authors": [
+        "Xifeng Guo",
+        "En Zhu",
+        "Xinwang Liu",
+        "Jianping Yin"
+      ],
+      "source_url": "https://proceedings.mlr.press/v95/guo18b.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "550",
+      "last_page": "565",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P05",
+      "method": "SCAN",
+      "title": "SCAN Learning to Classify Images without Labels",
+      "authors": [
+        "Wouter Van Gansbeke",
+        "Simon Vandenhende",
+        "Stamatios Georgoulis",
+        "Marc Proesmans",
+        "Luc Van Gool"
+      ],
+      "source_url": "https://www.ecva.net/papers/eccv_2020/papers_ECCV/papers/123550273.pdf",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P06",
+      "method": "CC",
+      "title": "Contrastive Clustering",
+      "authors": [
+        "Yunfan Li",
+        "Peng Hu",
+        "Zitao Liu",
+        "Dezhong Peng",
+        "Joey Tianyi Zhou",
+        "Xi Peng"
+      ],
+      "source_url": "https://ojs.aaai.org/index.php/AAAI/article/view/17037",
+      "accessed_on": "2026-10-13",
+      "first_page": "8547",
+      "last_page": "8555",
+      "volume": "35",
+      "issue": "10",
+      "doi": "10.1609/aaai.v35i10.17037",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P07",
+      "method": "DECRA",
+      "title": "Deep Embedding Clustering Based on Residual Autoencoder",
+      "authors": [
+        "Mengli Li",
+        "Chao Cao",
+        "Chungui Li",
+        "Shuhong Yang"
+      ],
+      "source_url": "https://link.springer.com/article/10.1007/s11063-024-11586-0",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "56",
+      "issue": "",
+      "doi": "10.1007/s11063-024-11586-0",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page",
+      "article_number": "127"
+    },
+    {
+      "paper_id": "P08",
+      "method": "BRB",
+      "title": "Breaking the Reclustering Barrier in Centroid-based Deep Clustering",
+      "authors": [
+        "Lukas Miklautz",
+        "Timo Klein",
+        "Kevin Sidak",
+        "Collin Leiber",
+        "Thomas Lang",
+        "Andrii Shkabrii",
+        "Sebastian Tschiatschek",
+        "Claudia Plant"
+      ],
+      "source_url": "https://proceedings.iclr.cc/paper_files/paper/2025/hash/f91685b940d5032f0f0c247edbd72edd-Abstract-Conference.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P09",
+      "method": "VaDE",
+      "title": "Variational Deep Embedding: An Unsupervised and Generative Approach to Clustering",
+      "authors": [
+        "Zhuxi Jiang",
+        "Yin Zheng",
+        "Huachun Tan",
+        "Bangsheng Tang",
+        "Hanning Zhou"
+      ],
+      "source_url": "https://www.ijcai.org/proceedings/2017/273",
+      "accessed_on": "2026-10-13",
+      "first_page": "1965",
+      "last_page": "1972",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P10",
+      "method": "DeepCluster",
+      "title": "Deep Clustering for Unsupervised Learning of Visual Features",
+      "authors": [
+        "Mathilde Caron",
+        "Piotr Bojanowski",
+        "Armand Joulin",
+        "Matthijs Douze"
+      ],
+      "source_url": "https://openaccess.thecvf.com/content_ECCV_2018/html/Mathilde_Caron_Deep_Clustering_for_ECCV_2018_paper.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "132",
+      "last_page": "149",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P11",
+      "method": "JULE",
+      "title": "Joint Unsupervised Learning of Deep Representations and Image Clusters",
+      "authors": [
+        "Jianwei Yang",
+        "Devi Parikh",
+        "Dhruv Batra"
+      ],
+      "source_url": "https://www.cv-foundation.org/openaccess/content_cvpr_2016/papers/Yang_Joint_Unsupervised_Learning_CVPR_2016_paper.pdf",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P12",
+      "method": "DCEC",
+      "title": "Deep Clustering with Convolutional Autoencoders",
+      "authors": [
+        "Xifeng Guo",
+        "Xinwang Liu",
+        "En Zhu",
+        "Jianping Yin"
+      ],
+      "source_url": "https://link.springer.com/chapter/10.1007/978-3-319-70096-0_39",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P13",
+      "method": "IIC",
+      "title": "Invariant Information Clustering for Unsupervised Image Classification and Segmentation",
+      "authors": [
+        "Xu Ji",
+        "Joao F. Henriques",
+        "Andrea Vedaldi"
+      ],
+      "source_url": "https://openaccess.thecvf.com/content_ICCV_2019/html/Ji_Invariant_Information_Clustering_for_Unsupervised_Image_Classification_and_Segmentation_ICCV_2019_paper.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "9865",
+      "last_page": "9874",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P14",
+      "method": "DECCS",
+      "title": "Deep Clustering With Consensus Representations",
+      "authors": [
+        "Lukas Miklautz",
+        "Martin Teuffenbach",
+        "Pascal Weber",
+        "Rona Perjuci",
+        "Walid Durani",
+        "Christian Böhm",
+        "Claudia Plant"
+      ],
+      "source_url": "https://arxiv.org/abs/2210.07063",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P15",
+      "method": "DPAC",
+      "title": "Deep Online Probability Aggregation Clustering",
+      "authors": [
+        "Yuxuan Yan",
+        "Na Lu",
+        "Ruofan Yan"
+      ],
+      "source_url": "https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/06944.pdf",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P16",
+      "method": "CA",
+      "title": "Hard Regularization to Prevent Deep Online Clustering Collapse without Data Augmentation",
+      "authors": [
+        "Louis Mahon",
+        "Thomas Lukasiewicz"
+      ],
+      "source_url": "https://ojs.aaai.org/index.php/AAAI/article/view/29340",
+      "accessed_on": "2026-10-13",
+      "first_page": "14281",
+      "last_page": "14288",
+      "volume": "38",
+      "issue": "13",
+      "doi": "10.1609/aaai.v38i13.29340",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P17",
+      "method": "ProPos",
+      "title": "Learning Representation for Clustering Via Prototype Scattering and Positive Sampling",
+      "authors": [
+        "Zhizhong Huang",
+        "Jie Chen",
+        "Junping Zhang",
+        "Hongming Shan"
+      ],
+      "source_url": "https://arxiv.org/pdf/2111.11821",
+      "accessed_on": "2026-10-13",
+      "first_page": "7509",
+      "last_page": "7524",
+      "volume": "45",
+      "issue": "6",
+      "doi": "10.1109/TPAMI.2022.3216454",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P18",
+      "method": "NNM",
+      "title": "Nearest Neighbor Matching for Deep Clustering",
+      "authors": [
+        "Zhiyuan Dang",
+        "Cheng Deng",
+        "Xu Yang",
+        "Kun Wei",
+        "Heng Huang"
+      ],
+      "source_url": "https://openaccess.thecvf.com/content/CVPR2021/html/Dang_Nearest_Neighbor_Matching_for_Deep_Clustering_CVPR_2021_paper.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "13693",
+      "last_page": "13702",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P19",
+      "method": "DivClust",
+      "title": "DivClust: Controlling Diversity in Deep Clustering",
+      "authors": [
+        "Ioannis Maniadis Metaxas",
+        "Georgios Tzimiropoulos",
+        "Ioannis Patras"
+      ],
+      "source_url": "https://openaccess.thecvf.com/content/CVPR2023/html/Metaxas_DivClust_Controlling_Diversity_in_Deep_Clustering_CVPR_2023_paper.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "3418",
+      "last_page": "3428",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P20",
+      "method": "LFSS",
+      "title": "Learning from Sample Stability for Deep Clustering",
+      "authors": [
+        "Zhixin Li",
+        "Yuheng Jia",
+        "Hui Liu",
+        "Junhui Hou"
+      ],
+      "source_url": "https://proceedings.mlr.press/v267/li25am.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "34904",
+      "last_page": "34919",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P21",
+      "method": "DCSS",
+      "title": "Deep Clustering Using the Soft Silhouette Score: Towards Compact and Well-Separated Clusters",
+      "authors": [
+        "Georgios Vardakas",
+        "Ioannis Papakostas",
+        "Aristidis Likas"
+      ],
+      "source_url": "https://link.springer.com/article/10.1007/s10994-026-07026-w",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "115",
+      "issue": "",
+      "doi": "10.1007/s10994-026-07026-w",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page",
+      "article_number": "81"
+    },
+    {
+      "paper_id": "P22",
+      "method": "PRCut",
+      "title": "Deep Clustering via Probabilistic Ratio-Cut Optimization",
+      "authors": [
+        "Ayoub Ghriss",
+        "Claire Monteleoni"
+      ],
+      "source_url": "https://proceedings.mlr.press/v258/ghriss25a.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "4870",
+      "last_page": "4878",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P23",
+      "method": "DCBoost",
+      "title": "You Can Trust Your Clustering Model: A Parameter-free Self-Boosting Plug-in for Deep Clustering",
+      "authors": [
+        "Hanyang Li",
+        "Yuheng Jia",
+        "Hui LIU",
+        "Junhui Hou"
+      ],
+      "source_url": "https://proceedings.neurips.cc/paper_files/paper/2025/hash/14c11b0ddbae4593c566ea158df642be-Abstract-Conference.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "14066",
+      "last_page": "14091",
+      "volume": "38",
+      "issue": "",
+      "doi": "10.52202/085713-0473",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P24",
+      "method": "SANE",
+      "title": "Samples Are Not Equal: A Sample Selection Approach for Deep Clustering",
+      "authors": [
+        "Zhengxing Jiao",
+        "Yaxin Hou",
+        "Jun Ma",
+        "Yuhang Li",
+        "Ding Ding",
+        "Yuheng Jia",
+        "Hui LIU",
+        "Junhui Hou"
+      ],
+      "source_url": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/63ef323523f3be8b58ed9277cc747485-Abstract-Conference.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P25",
+      "method": "CDC",
+      "title": "Towards Calibrated Deep Clustering Network",
+      "authors": [
+        "Yuheng Jia",
+        "Jianhong Cheng",
+        "Hui LIU",
+        "Junhui Hou"
+      ],
+      "source_url": "https://proceedings.iclr.cc/paper_files/paper/2025/hash/ffbe1a03c35d611e0fc8362b316a9237-Abstract-Conference.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P26",
+      "method": "P2OT",
+      "title": "P$^2$OT: Progressive Partial Optimal Transport for Deep Imbalanced Clustering",
+      "authors": [
+        "Chuyu Zhang",
+        "Hui Ren",
+        "Xuming He"
+      ],
+      "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/3d03791377a31cb3e7357014ba58eb80-Abstract-Conference.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P27",
+      "method": "CPP",
+      "title": "Image Clustering via the Principle of Rate Reduction in the Age of Pretrained Models",
+      "authors": [
+        "Tianzhe Chu",
+        "Shengbang Tong",
+        "Tianjiao Ding",
+        "Xili Dai",
+        "Benjamin Haeffele",
+        "Rene Vidal",
+        "Yi Ma"
+      ],
+      "source_url": "https://proceedings.iclr.cc/paper_files/paper/2024/hash/697200c9d1710c2799720b660abd11bb-Abstract-Conference.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P28",
+      "method": "SwAV",
+      "title": "Unsupervised Learning of Visual Features by Contrasting Cluster Assignments",
+      "authors": [
+        "Mathilde Caron",
+        "Ishan Misra",
+        "Julien Mairal",
+        "Priya Goyal",
+        "Piotr Bojanowski",
+        "Armand Joulin"
+      ],
+      "source_url": "https://proceedings.nips.cc/paper_files/paper/2020/hash/70feb62b69f16e0238f741fab228fec2-Abstract.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "9912",
+      "last_page": "9924",
+      "volume": "33",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P29",
+      "method": "IDC",
+      "title": "Interpretable Deep Clustering for Tabular Data",
+      "authors": [
+        "Jonathan Svirsky",
+        "Ofir Lindenbaum"
+      ],
+      "source_url": "https://proceedings.mlr.press/v235/svirsky24a.html",
+      "accessed_on": "2026-10-13",
+      "first_page": "47314",
+      "last_page": "47330",
+      "volume": "",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P30",
+      "method": "DSCNet",
+      "title": "Deep Subspace Clustering Networks",
+      "authors": [
+        "Pan Ji",
+        "Tong Zhang",
+        "Hongdong Li",
+        "Mathieu Salzmann",
+        "Ian Reid"
+      ],
+      "source_url": "https://papers.nips.cc/paper/6608-deep-subspace-clustering-networks",
+      "accessed_on": "2026-10-13",
+      "first_page": "",
+      "last_page": "",
+      "volume": "30",
+      "issue": "",
+      "doi": "",
+      "evidence": "Publisher/proceedings HTML citation metadata; matching title verified"
+    },
+    {
+      "paper_id": "P31",
+      "method": "DKM",
+      "title": "Deep k-Means: Jointly clustering with k-Means and learning representations",
+      "authors": [
+        "Maziar Moradi Fard",
+        "Thibaut Thonet",
+        "Eric Gaussier"
+      ],
+      "source_url": "https://arxiv.org/pdf/1806.10069",
+      "accessed_on": "2026-10-13",
+      "first_page": "185",
+      "last_page": "192",
+      "volume": "138",
+      "issue": "",
+      "doi": "10.1016/j.patrec.2020.07.028",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page"
+    },
+    {
+      "paper_id": "P32",
+      "method": "Survey-ACM",
+      "title": "A Comprehensive Survey on Deep Clustering: Taxonomy, Challenges, and Future Directions",
+      "authors": [
+        "Sheng Zhou",
+        "Hongjia Xu",
+        "Zhuonan Zheng",
+        "Jiawei Chen",
+        "Zhao Li",
+        "Jiajun Bu",
+        "Jia Wu",
+        "Xin Wang",
+        "Wenwu Zhu",
+        "Martin Ester"
+      ],
+      "source_url": "https://mn.cs.tsinghua.edu.cn/xinwang/PDF/papers/2024_A%20Comprehensive%20Survey%20on%20Deep%20Clustering%20Taxonomy%20Challenges%20and%20Future%20Directions.pdf",
+      "accessed_on": "2026-10-13",
+      "first_page": "1",
+      "last_page": "38",
+      "volume": "57",
+      "issue": "3",
+      "doi": "10.1145/3689036",
+      "evidence": "Author names verified from publisher/proceedings or author manuscript first page",
+      "article_number": "69"
+    }
+  ],
+  "unresolved_paper_ids": [],
+  "scope": "Citation author/page metadata only; not full-text review completion",
+  "authors_verified": 32
+}

@@ -1,0 +1,29 @@
+{
+  "added_paper_ids": [
+    "P31",
+    "P32"
+  ],
+  "downloads": [
+    {
+      "source": "https://arxiv.org/pdf/1806.10069",
+      "pdf": "docs/references/survey_papers/DKM_2020_preprint.pdf",
+      "sha256": "d74740823211d0cae24b2f4567885d4e3a7e6e70e0768d4a0315f1e58ed1860e",
+      "pages": 14,
+      "downloaded_on": "2026-10-13",
+      "version_note": "arXiv v2 Dec2018; journal2020 not a duplicate"
+    },
+    {
+      "source": "https://mn.cs.tsinghua.edu.cn/xinwang/PDF/papers/2024_A%20Comprehensive%20Survey%20on%20Deep%20Clustering%20Taxonomy%20Challenges%20and%20Future%20Directions.pdf",
+      "pdf": "docs/references/survey_papers/DeepClusteringSurvey_ACM_2025_authorcopy.pdf",
+      "sha256": "990795058f13943b61a674e82cf5eba48898aebf13b2eaeffc84ca7ae6694e9d",
+      "pages": 37,
+      "downloaded_on": "2026-10-13",
+      "version_note": "Author manuscript; online2024, canonical issue2025"
+    }
+  ],
+  "acm_metadata_sources": [
+    "https://doi.org/10.1145/3689036",
+    "https://researchers.mq.edu.au/en/publications/a-comprehensive-survey-on-deep-clustering-taxonomy-challenges-and/"
+  ],
+  "full_text_review_completed": false
+}

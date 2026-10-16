@@ -1,0 +1,58 @@
+"""Publication provenance and boundaries of the local implementations."""
+
+METHOD_REGISTRY = {
+    "DCSS": {
+        "year": 2026,
+        "paper_title": "Deep Clustering Using the Soft Silhouette Score: Towards Compact and Well-Separated Clusters",
+        "paper_url": "https://link.springer.com/article/10.1007/s10994-026-07026-w",
+        "code_url": "https://github.com/gvardakas/Soft-Silhouette",
+        "mechanism": "Learnable Gaussian RBF assignment head, soft-silhouette objective, entropy penalty",
+        "implementation_scope": "Released-code objective and RBF adapted to the shared NumPy AE; original backbone, training budget and pretraining differ; code omits probability-mass normalization of paper Eq. 13",
+        "experiment_role": "2026 candidate selected for compatibility with the DEC/IDEC/DECRA family; not established SOTA",
+    },
+    "DEC": {
+        "year": 2016,
+        "paper_title": "Unsupervised Deep Embedding for Clustering Analysis",
+        "paper_url": "https://proceedings.mlr.press/v48/xieb16.html",
+        "code_url": "https://github.com/piiswrong/dec",
+        "mechanism": "Student-t soft assignments, sharpened target P, KL optimization",
+        "implementation_scope": "Independent NumPy adaptation; small shared AE and Digits, not original experiment",
+        "experiment_role": "timeline baseline",
+    },
+    "IDEC": {
+        "year": 2017,
+        "paper_title": "Improved Deep Embedded Clustering with Local Structure Preservation",
+        "paper_url": "https://www.ijcai.org/proceedings/2017/243",
+        "code_url": "https://github.com/XifengGuo/IDEC",
+        "mechanism": "DEC KL objective plus reconstruction to preserve local structure",
+        "implementation_scope": "Independent NumPy adaptation of the user's target; architecture, pretraining and data differ",
+        "experiment_role": "target paper and paired comparison baseline",
+    },
+    "DECRA": {
+        "year": 2024,
+        "paper_title": "Deep Embedding Clustering Based on Residual Autoencoder",
+        "paper_url": "https://link.springer.com/article/10.1007/s11063-024-11586-0",
+        "code_url": "https://github.com/lml-mengli/DECRA",
+        "mechanism": "Adaptive latent linear branch and decoder consistency, following released code",
+        "implementation_scope": "DECRA code-inspired adaptation with common plain-AE pretraining; released code differs from residual addition in paper Eq. 5",
+        "experiment_role": "2024 candidate; not an exact reproduction",
+    },
+    "SANE_IDEC": {
+        "year": 2026,
+        "paper_title": "Samples Are Not Equal: A Sample Selection Approach for Deep Clustering",
+        "paper_url": "https://proceedings.iclr.cc/paper_files/paper/2026/hash/63ef323523f3be8b58ed9277cc747485-Abstract-Conference.html",
+        "code_url": "https://github.com/notoaudrey/Samples-Are-Not-Equal",
+        "mechanism": "Density-aware initialization (DACHI), dynamic sample selection (DSS) added to IDEC",
+        "implementation_scope": "Independent IDEC+SANE-inspired adaptation; Gaussian views, 25% retention floor, small AE; original ResNet/MoCo-v2 implementation was not run",
+        "experiment_role": "2026 exploratory candidate; not established SOTA",
+    },
+    "IDEC_BRB": {
+        "year": 2025,
+        "paper_title": "Breaking the Reclustering Barrier in Centroid-based Deep Clustering",
+        "paper_url": "https://proceedings.iclr.cc/paper_files/paper/2025/hash/f91685b940d5032f0f0c247edbd72edd-Abstract-Conference.html",
+        "code_url": "https://github.com/Probabilistic-and-Interactive-ML/breaking-the-reclustering-barrier",
+        "mechanism": "Soft encoder reset, reclustering, centroid optimizer reset",
+        "implementation_scope": "Legacy educational demo; reset includes latent layer and differs from paper implementation",
+        "experiment_role": "optional legacy demo; BRB is literature-only in the timeline run",
+    },
+}

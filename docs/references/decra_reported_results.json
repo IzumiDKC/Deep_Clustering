@@ -1,0 +1,42 @@
+{
+  "paper_id": "P07",
+  "method": "DECRA",
+  "dataset": "MNIST",
+  "publication_year": 2024,
+  "retrieved_on": "2026-10-13",
+  "sources": {
+    "ACC": "https://link.springer.com/article/10.1007/s11063-024-11586-0/tables/2",
+    "NMI": "https://link.springer.com/article/10.1007/s11063-024-11586-0/tables/3"
+  },
+  "access_mode": "direct_publisher_table_extracted_by_TinyFish",
+  "metric_scale": "0..1",
+  "rows": [
+    {
+      "method": "DEC",
+      "acc": 0.847,
+      "nmi": 0.791
+    },
+    {
+      "method": "IDEC",
+      "acc": 0.881,
+      "nmi": 0.867
+    },
+    {
+      "method": "DECRA",
+      "acc": 0.964,
+      "nmi": 0.917
+    }
+  ],
+  "uncertainty": "Table2 andTable3 show point values only, no std/SE column; do not infer zero variance",
+  "nmi_normalization": "Paper section4.2 uses max(H_true,H_pred); local demo uses arithmetic normalization",
+  "reproduction_status": "Literature values; not local MNIST training; do not compare numerically with local Digits1797 as same benchmark",
+  "protocol": {
+    "source_section": "Publisher sections4.3 and4.4",
+    "encoder": "d-500-500-1000-10",
+    "batch_size": 256,
+    "optimizer": "Adam",
+    "mnist_learning_rate": 0.001,
+    "number_of_repeats": "not specified in section4.3; no mean/std/SE displayed in Tables2-3",
+    "baseline_origin": "Results from published papers or rerun code; matched protocol not established for every row"
+  }
+}

@@ -1,0 +1,31 @@
+# Local Python and notebook environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Credentials and machine-specific settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.vscode/
+.idea/
+
+# Temporary files and duplicate packages
+*.zip
+*.tmp
+*.temp
+*.log
+~$*
+Thumbs.db
+.DS_Store
+
+# Experimental scratch outputs; verified dated outputs remain versioned
+results/smoke*/
+results/live*/

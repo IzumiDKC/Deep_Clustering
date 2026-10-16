@@ -1,0 +1,37 @@
+{
+  "dataset": "UCI Optical Recognition of Handwritten Digits test subset via sklearn.load_digits",
+  "n_samples": 1797,
+  "n_features": 64,
+  "image_shape": [
+    8,
+    8
+  ],
+  "known_n_clusters": 10,
+  "raw_pixel_range": [
+    0,
+    16
+  ],
+  "normalization": "X = raw_pixels / 16.0",
+  "class_counts": {
+    "0": 178,
+    "1": 182,
+    "2": 177,
+    "3": 183,
+    "4": 181,
+    "5": 182,
+    "6": 181,
+    "7": 179,
+    "8": 174,
+    "9": 180
+  },
+  "sklearn_url": "https://scikit-learn.org/stable/modules/generated/sklearn.datasets.load_digits.html",
+  "uci_url": "https://archive.ics.uci.edu/dataset/80/optical+recognition+of+handwritten+digits",
+  "doi": "10.24432/C50P49",
+  "creators": [
+    "E. Alpaydin",
+    "C. Kaynak"
+  ],
+  "dataset_license": "CC BY 4.0",
+  "label_usage": "Evaluation only",
+  "sha256_npz": "3460276fd9ea7f0dc75aa5e0720ad8c0f91055d41b6a9b0d82552d808c09fa30"
+}

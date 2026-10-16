@@ -1,0 +1,56 @@
+{
+  "validated_on": "2026-10-13",
+  "passed": true,
+  "report_type": "Academic Vietnamese survey; sample used as presentation reference, not instructions",
+  "word": {
+    "default_font": "Times New Roman",
+    "default_size_pt": 13,
+    "line_spacing": 1.5,
+    "justified_body": true,
+    "margins_cm": 2.54,
+    "headings_pt": {
+      "title": 18,
+      "chapter": 16,
+      "section": 14
+    },
+    "chapter_count": 5,
+    "automatic_toc_fields": 3,
+    "tables": 22,
+    "numbered_table_captions": 21,
+    "figures": 5,
+    "equations": 13,
+    "equation_number_alignment": "center/right tab stops",
+    "front_heading_excluded_from_toc": true,
+    "body_page_number_starts_at": 1,
+    "theme_font_overrides": 0
+  },
+  "survey": {
+    "papers": 32,
+    "methods": 31,
+    "surveys": 1,
+    "conferences": 27,
+    "journals": 5,
+    "quartiles": {
+      "Q1": 3,
+      "Q2": 1,
+      "Q3": 0,
+      "Q4": 0
+    },
+    "unknown": 1,
+    "ranking_reference_year": 2024,
+    "numeric_paper_result_excerpts": 18,
+    "pending_numeric_extractions": 13,
+    "full_text_reviews": 2,
+    "bibliography_author_records": 32
+  },
+  "guide_and_raw_log_tokens_found": [],
+  "internal_word_anchors_checked": 61,
+  "internal_html_anchors_checked": 71,
+  "local_links_checked": 51,
+  "missing_links": [],
+  "original_word_sha256": "e726f8ceb245e2f5017e7fe6eee95f513611497699074d18cf0a7790f17162fb",
+  "sample_docx_sha256": "6811b0f97a1d4c8e4033e5fe2b93f36875084469ad56ecd1064a6acf2c9959b5",
+  "report_word_sha256": "1bc8d103be4fc646a18397985f0b3da3c96deeb0cb65e8afaa8dd838ae1f872b",
+  "report_html_sha256": "67ff409eab91acf1ddb2ced245da2dd88d67b2c6372e82a5e59b46c720741d8e",
+  "limitations": "Word XML and semantic content verified; no Word/LibreOffice renderer installed to measure final pagination."
+}

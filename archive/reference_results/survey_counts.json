@@ -1,0 +1,35 @@
+{
+  "total_papers_in_tracker": 8,
+  "publication_types": {
+    "conference": 7,
+    "journal": 1
+  },
+  "papers_by_year": {
+    "2016": 1,
+    "2017": 2,
+    "2018": 1,
+    "2020": 1,
+    "2021": 1,
+    "2024": 1,
+    "2025": 1
+  },
+  "journal_quartiles": {
+    "Q1": 0,
+    "Q2": 0,
+    "Q3": 0,
+    "Q4": 0
+  },
+  "journal_quartile_unknown": 1,
+  "quartile_denominator_journal_papers": 1,
+  "public_code_papers": 8,
+  "original_code_smoke_tested": 0,
+  "public_dataset_papers": 8,
+  "full_text_reviews_completed": 0,
+  "note": "Counts describe current tracker rows. Empty quartiles are unknown. Conference papers are excluded from journal quartiles. Public code does not imply successful execution. NumPy demo is not original code.",
+  "journal_quartile_percent": {
+    "Q1": 0.0,
+    "Q2": 0.0,
+    "Q3": 0.0,
+    "Q4": 0.0
+  }
+}

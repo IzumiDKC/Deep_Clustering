@@ -1,0 +1,52 @@
+{
+  "total_papers_in_tracker": 8,
+  "papers_listed": 8,
+  "paper_metadata_verified": 8,
+  "publication_types": {
+    "conference": 7,
+    "journal": 1
+  },
+  "publication_type_percent": {
+    "conference": 87.5,
+    "journal": 12.5
+  },
+  "papers_by_year": {
+    "2016": 1,
+    "2017": 2,
+    "2018": 1,
+    "2020": 1,
+    "2021": 1,
+    "2024": 1,
+    "2025": 1
+  },
+  "papers_from_2023_onward": 2,
+  "full_text_reviews_completed": 0,
+  "full_text_review_percent": 0.0,
+  "reviewed_publication_types": {},
+  "journal_quartiles": {
+    "Q1": 0,
+    "Q2": 0,
+    "Q3": 0,
+    "Q4": 0
+  },
+  "journal_quartile_unknown": 1,
+  "quartile_denominator_journal_papers": 1,
+  "quartile_verified_journal_papers": 0,
+  "journal_quartile_percent": {
+    "Q1": 0.0,
+    "Q2": 0.0,
+    "Q3": 0.0,
+    "Q4": 0.0
+  },
+  "journal_quartile_unknown_percent": 100.0,
+  "quartile_claims_missing_evidence": [],
+  "journal_ranking_records": [],
+  "public_code_papers": 8,
+  "public_code_verified": 8,
+  "public_code_percent": 100.0,
+  "original_code_smoke_tested": 0,
+  "public_dataset_papers": 8,
+  "dataset_scope_verified": 8,
+  "original_dataset_download_verified": 0,
+  "note": "Tracker rows are listed candidates, not completed full-text reviews. Quartile counts require quartile_verified=yes and system/year/category/source; conference papers are excluded. Dataset_public is a tracker claim; dataset_scope_verified confirms benchmark names only, not licenses or downloads. Public code does not imply successful execution. The independent NumPy demo is separate from original-code smoke tests and full paper reproduction."
+}

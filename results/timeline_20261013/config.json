@@ -1,0 +1,181 @@
+{
+  "data": "data\\digits_1797.npz",
+  "dataset_name": "Digits 1797 (8x8)",
+  "output": "F:\\ThacSi\\Data Mining\\Survey\\Deep_Clustering_Demo\\results\\timeline_20261013",
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "methods": [
+    "DEC",
+    "IDEC",
+    "DECRA",
+    "DCSS"
+  ],
+  "clusters": 10,
+  "latent_dim": 10,
+  "pretrain_epochs": 120,
+  "cluster_epochs": 60,
+  "batch_size": 128,
+  "learning_rate": 0.001,
+  "gamma": 0.1,
+  "dcn_weight": 0.01,
+  "decra_gamma": 0.1,
+  "decra_reconstruction_weight": 2.0,
+  "decra_consistency_weight": 0.6,
+  "decra_kl_reduction": "mean",
+  "dcss_silhouette_weight": 0.01,
+  "dcss_entropy_weight": 0.01,
+  "dcss_temperature": 0.25,
+  "dcss_distance_normalization": "source",
+  "target_interval": 5,
+  "brb_interval": 20,
+  "brb_alpha": 0.8,
+  "sane_alpha": 2.0,
+  "sane_neighbors": 10,
+  "sane_epsilon": 0.1,
+  "sane_min_retain": 0.25,
+  "sane_weak_sigma": 0.025,
+  "sane_strong_sigma": 0.08,
+  "limit": 0,
+  "n_samples": 1797,
+  "n_features": 64,
+  "protocol": "transductive clustering on all X; y is evaluation only",
+  "implementation": "educational NumPy; not an exact paper reproduction",
+  "architecture": [
+    64,
+    64,
+    32,
+    10,
+    32,
+    64,
+    64
+  ],
+  "n_init": 20,
+  "loss_scaling": "reconstruction averages N*D; KL and k-means distortion average N",
+  "sha256_data": "3460276fd9ea7f0dc75aa5e0720ad8c0f91055d41b6a9b0d82552d808c09fa30",
+  "sha256_training_X": "23a53393488b04f92efc45ebc92767e2dcfdf206ba37a928f497d261e42267d2",
+  "sha256_sample_indices": "67a20cc9a4089e17305c2563b9f49897c4fbe4cee8eaac614bccebe6aa3704b9",
+  "sane_scope": "IDEC adaptation of ICLR 2026 DACHI/DSS; original ResNet/MoCo-v2 code was not run",
+  "method_registry": {
+    "DEC": {
+      "year": 2016,
+      "paper_title": "Unsupervised Deep Embedding for Clustering Analysis",
+      "paper_url": "https://proceedings.mlr.press/v48/xieb16.html",
+      "code_url": "https://github.com/piiswrong/dec",
+      "mechanism": "Student-t soft assignments, sharpened target P, KL optimization",
+      "implementation_scope": "Independent NumPy adaptation; small shared AE and Digits, not original experiment",
+      "experiment_role": "timeline baseline"
+    },
+    "IDEC": {
+      "year": 2017,
+      "paper_title": "Improved Deep Embedded Clustering with Local Structure Preservation",
+      "paper_url": "https://www.ijcai.org/proceedings/2017/243",
+      "code_url": "https://github.com/XifengGuo/IDEC",
+      "mechanism": "DEC KL objective plus reconstruction to preserve local structure",
+      "implementation_scope": "Independent NumPy adaptation of the user's target; architecture, pretraining and data differ",
+      "experiment_role": "target paper and paired comparison baseline"
+    },
+    "DECRA": {
+      "year": 2024,
+      "paper_title": "Deep Embedding Clustering Based on Residual Autoencoder",
+      "paper_url": "https://link.springer.com/article/10.1007/s11063-024-11586-0",
+      "code_url": "https://github.com/lml-mengli/DECRA",
+      "mechanism": "Adaptive latent linear branch and decoder consistency, following released code",
+      "implementation_scope": "DECRA code-inspired adaptation with common plain-AE pretraining; released code differs from residual addition in paper Eq. 5",
+      "experiment_role": "2024 candidate; not an exact reproduction"
+    },
+    "DCSS": {
+      "year": 2026,
+      "paper_title": "Deep Clustering Using the Soft Silhouette Score: Towards Compact and Well-Separated Clusters",
+      "paper_url": "https://link.springer.com/article/10.1007/s10994-026-07026-w",
+      "code_url": "https://github.com/gvardakas/Soft-Silhouette",
+      "mechanism": "Learnable Gaussian RBF assignment head, soft-silhouette objective, entropy penalty",
+      "implementation_scope": "Released-code objective and RBF adapted to the shared NumPy AE; original backbone, training budget and pretraining differ; code omits probability-mass normalization of paper Eq. 13",
+      "experiment_role": "2026 candidate selected for compatibility with the DEC/IDEC/DECRA family; not established SOTA"
+    }
+  },
+  "initialization_protocol": "Within each seed all methods clone identical plain-AE pretrained weights and initial KMeans centers; SANE then applies DACHI; DECRA adds randomly initialized adaptive branch",
+  "architecture_by_method": {
+    "DEC": {
+      "base": [
+        64,
+        64,
+        32,
+        10,
+        32,
+        64,
+        64
+      ],
+      "extra_adaptive_linear": false,
+      "extra_rbf_log_sigmas": false
+    },
+    "IDEC": {
+      "base": [
+        64,
+        64,
+        32,
+        10,
+        32,
+        64,
+        64
+      ],
+      "extra_adaptive_linear": false,
+      "extra_rbf_log_sigmas": false
+    },
+    "DECRA": {
+      "base": [
+        64,
+        64,
+        32,
+        10,
+        32,
+        64,
+        64
+      ],
+      "extra_adaptive_linear": true,
+      "extra_rbf_log_sigmas": false
+    },
+    "DCSS": {
+      "base": [
+        64,
+        64,
+        32,
+        10,
+        32,
+        64,
+        64
+      ],
+      "extra_adaptive_linear": false,
+      "extra_rbf_log_sigmas": true
+    }
+  },
+  "implementation_checks": [
+    "checks/verification_local_models.json",
+    "checks/verification_decra.json",
+    "checks/verification_dcss.json"
+  ],
+  "executed_notebook": "notebooks/demo_4_timeline_verified.ipynb",
+  "selection_protocol": "Literature-led exploratory candidates, fixed settings before five-seed run; highest Digits mean is not universal 2025/2026 SOTA",
+  "decra_scope": "Released-code loss on shared NumPy backbone; no residual-AE pretraining; KL mean averages N*K unlike IDEC N",
+  "dcss_scope": "Released-code soft silhouette + RBF + entropy on shared backbone; source normalization and temperature differ from paper equations",
+  "timing_definition": "standalone = pretrain + shared KMeans initialization + method fitting including epoch loss traces; excludes final external metrics, plots and file writes",
+  "source_sha256": {
+    "run_demo.py": "753b171283cfe779f0f9d1f057824f6d1fd0863dfb8168f50abc2d993b3410a0",
+    "src\\models.py": "dec3f21b48d3ced71c39c9544d1d58eb1c8bb5250f9cbf73d545ec0ab38ea9f5",
+    "src\\decra.py": "b789d4116b26d069448ef11b7210edcf802b9b87df031e7903bffc6bbf384ff8",
+    "src\\dcss.py": "e79d4c648902e033f98122f22bb715a1466bf8f5e1d532b10ed1f3bf41c7c966",
+    "src\\sane.py": "27ce5f708109c94dfb21589b720899ac1150619b5abc5f54dd52bc6ab1caadf2",
+    "src\\evaluation.py": "e162ccdfbc0efd4430830af2e8be39f7927bb1b6582063e0cab302dc9f749614",
+    "src\\method_registry.py": "70322c51400c8fbd66a62146947e2cc27621989f78d569a729acaa9c11055660"
+  },
+  "output_before_cleanup": "results_timeline_20261013",
+  "relocated_on": "2026-10-13",
+  "source_locations": {
+    "run_demo.py": "archive/source_snapshots/20261013/run_demo.py"
+  },
+  "relocation_note": "Only filesystem paths changed; original training source/config snapshots retained; metrics and checkpoints untouched."
+}

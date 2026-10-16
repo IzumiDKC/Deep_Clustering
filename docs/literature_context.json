@@ -1,0 +1,99 @@
+{
+  "user_target_paper": "https://drive.google.com/file/d/1coKd8hzuPvHtu_l3OkMhGaB8MB1VHl8a/view?usp=drive_link",
+  "target_verified_title": "Improved Deep Embedded Clustering with Local Structure Preservation",
+  "reference_folder": "https://drive.google.com/drive/folders/1K6GxxIWpCuRcmSWB7_aBLXS8kS1BSaQ3",
+  "brb_role": "Literature comparison only in the four-stage experiment; no assumption that BRB is best",
+  "brb_paper_reported": [
+    {
+      "dataset": "MNIST",
+      "baseline": "IDEC+Pretrain",
+      "variant": "IDEC+BRB+Pretrain",
+      "metric": "ACC (%)",
+      "baseline_mean": 93.16,
+      "variant_mean": 94.19,
+      "protocol": "Table 13; reconstruction autoencoder with pretraining; 10 seeds; paper reported",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/file/f91685b940d5032f0f0c247edbd72edd-Paper-Conference.pdf",
+      "baseline_uncertainty": 2.2,
+      "variant_uncertainty": 2.2,
+      "uncertainty_type": "standard error"
+    },
+    {
+      "dataset": "USPS",
+      "baseline": "IDEC+Pretrain",
+      "variant": "IDEC+BRB+Pretrain",
+      "metric": "ACC (%)",
+      "baseline_mean": 81.59,
+      "variant_mean": 81.87,
+      "protocol": "Table 13; reconstruction autoencoder with pretraining; 10 seeds; paper reported",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/file/f91685b940d5032f0f0c247edbd72edd-Paper-Conference.pdf",
+      "baseline_uncertainty": 0.28,
+      "variant_uncertainty": 0.14,
+      "uncertainty_type": "standard error"
+    },
+    {
+      "dataset": "OPTDIGITS",
+      "baseline": "IDEC+Pretrain",
+      "variant": "IDEC+BRB+Pretrain",
+      "metric": "ACC (%)",
+      "baseline_mean": 86.83,
+      "variant_mean": 87.35,
+      "protocol": "Table 13; reconstruction autoencoder with pretraining; 10 seeds; paper reported; OPTDIGITS protocol differs from local sklearn Digits1797",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/file/f91685b940d5032f0f0c247edbd72edd-Paper-Conference.pdf",
+      "baseline_uncertainty": 0.21,
+      "variant_uncertainty": 0.36,
+      "uncertainty_type": "standard error"
+    },
+    {
+      "dataset": "Fashion-MNIST",
+      "baseline": "IDEC+Pretrain",
+      "variant": "IDEC+BRB+Pretrain",
+      "metric": "ACC (%)",
+      "baseline_mean": 53.59,
+      "variant_mean": 55.96,
+      "protocol": "Table 13; reconstruction autoencoder with pretraining; 10 seeds; paper reported",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/file/f91685b940d5032f0f0c247edbd72edd-Paper-Conference.pdf",
+      "baseline_uncertainty": 1.01,
+      "variant_uncertainty": 1.13,
+      "uncertainty_type": "standard error"
+    },
+    {
+      "dataset": "KMNIST",
+      "baseline": "IDEC+Pretrain",
+      "variant": "IDEC+BRB+Pretrain",
+      "metric": "ACC (%)",
+      "baseline_mean": 65.09,
+      "variant_mean": 65.61,
+      "protocol": "Table 13; reconstruction autoencoder with pretraining; 10 seeds; paper reported",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/file/f91685b940d5032f0f0c247edbd72edd-Paper-Conference.pdf",
+      "baseline_uncertainty": 1.03,
+      "variant_uncertainty": 1.04,
+      "uncertainty_type": "standard error"
+    },
+    {
+      "dataset": "GTSRB",
+      "baseline": "IDEC+Pretrain",
+      "variant": "IDEC+BRB+Pretrain",
+      "metric": "ACC (%)",
+      "baseline_mean": 56.63,
+      "variant_mean": 62.84,
+      "protocol": "Table 13; reconstruction autoencoder with pretraining; 10 seeds; paper reported",
+      "source": "https://proceedings.iclr.cc/paper_files/paper/2025/file/f91685b940d5032f0f0c247edbd72edd-Paper-Conference.pdf",
+      "baseline_uncertainty": 2.16,
+      "variant_uncertainty": 1.89,
+      "uncertainty_type": "standard error"
+    }
+  ],
+  "comparison_limit": "Paper-reported results and local Digits adaptation results have different data, architecture and training protocols. They must not share a ranking table.",
+  "brb_uncertainty_type": "standard error: Section 6.1 default; Table 13 specifies no alternative",
+  "target_paper": {
+    "title": "Improved Deep Embedded Clustering with Local Structure Preservation",
+    "drive_url": "https://drive.google.com/file/d/1coKd8hzuPvHtu_l3OkMhGaB8MB1VHl8a/view?usp=drive_link",
+    "source_url": "https://www.ijcai.org/proceedings/2017/0243.pdf",
+    "url": "https://www.ijcai.org/proceedings/2017/243"
+  },
+  "library_inventory": {
+    "folder_url": "https://drive.google.com/drive/folders/1K6GxxIWpCuRcmSWB7_aBLXS8kS1BSaQ3",
+    "files_seen": 50,
+    "note": "Public folder listing inspected; PDF file inventory is not the count of papers read in full or unique surveyed publications."
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "created_utc": "2026-10-13T01:33:55.829351+00:00",
+  "seed": 0,
+  "n_samples": 1797,
+  "n_clusters": 10,
+  "temperature": 0.25,
+  "uses_ground_truth": false,
+  "main_experiment_modified": false,
+  "scope": "label-free diagnostics only; no accuracy, tuning or training",
+  "pretrained_latent_norm": {
+    "min": 4.650952588722059,
+    "p10": 7.306224482798637,
+    "median": 9.642631881625475,
+    "p90": 11.504482707124813,
+    "p99": 12.63864661052791,
+    "max": 13.359289102395557
+  },
+  "pretrained_coordinate_range": {
+    "min": -8.150824385416712,
+    "p10": -4.042813631810061,
+    "median": 0.136644052913868,
+    "p90": 4.0800162392143875,
+    "p99": 6.117866400885861,
+    "max": 8.157038442830569
+  },
+  "nearest_center_squared_distance": {
+    "min": 0.5542138667934453,
+    "p10": 3.320509894213562,
+    "median": 7.209276387444347,
+    "p90": 14.07394040928851,
+    "p99": 20.709606446743933,
+    "max": 26.18885534046458
+  },
+  "all_center_squared_distance": {
+    "min": 0.5542138667934453,
+    "p10": 11.79168420652306,
+    "median": 28.12929735885659,
+    "p90": 50.00985578466269,
+    "p99": 71.54478477846307,
+    "max": 108.33472925547096
+  },
+  "width_estimator": "sqrt(mean nearest-center squared Euclidean distance), global or within each initial K-means cluster",
+  "initialization_variants": {
+    "source_sigma_1": {
+      "widths": [
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0,
+        1.0
+      ],
+      "width_summary": {
+        "min": 1.0,
+        "p10": 1.0,
+        "median": 1.0,
+        "p90": 1.0,
+        "p99": 1.0,
+        "max": 1.0
+      },
+      "max_gaussian_activation": {
+        "min": 4.229846802350693e-12,
+        "p10": 7.723134662079726e-07,
+        "median": 0.0007396922124247343,
+        "p90": 0.03613494779424557,
+        "p99": 0.21790068361288858,
+        "max": 0.5745237359003016
+      },
+      "fraction_max_phi_below_1e-8": 0.021702838063439065,
+      "fraction_max_phi_below_1e-3": 0.531997774067891,
+      "max_assignment_probability": {
+        "min": 0.10000000000148507,
+        "p10": 0.10000027320925083,
+        "median": 0.10026593173101479,
+        "p90": 0.11374994479057454,
+        "p99": 0.20988714086969082,
+        "max": 0.5251962306064432
+      },
+      "mean_max_assignment_probability": 0.10675384191339252,
+      "mean_top_two_probability_margin": 0.007493332774264221,
+      "mean_entropy_nats": 2.300033613915827,
+      "mean_entropy_normalized_logK": 0.998891906715638,
+      "fraction_max_q_within_0.001_of_uniform": 0.6382860322760155,
+      "nonempty_argmax_clusters": 10,
+      "gradient_probe_samples": 128,
+      "loss_components": {
+        "reconstruction": 0.0116380528666068,
+        "clustering": 1.010075646128665,
+        "soft_silhouette": -0.010075646128665072,
+        "entropy_bits": 3.3163349900073356,
+        "total": 0.054902159227966804
+      },
+      "centers_gradient_norm": 5.396674931420453e-05,
+      "log_sigmas_gradient_norm": 6.614720647267315e-05,
+      "clustering_only_encoder_gradient_norm": 0.0008338410956211725
+    },
+    "global_within_cluster_rms": {
+      "widths": [
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417,
+        2.837048762899417
+      ],
+      "width_summary": {
+        "min": 2.837048762899417,
+        "p10": 2.837048762899417,
+        "median": 2.837048762899417,
+        "p90": 2.837048762899417,
+        "p99": 2.837048762899417,
+        "max": 2.837048762899417
+      },
+      "max_gaussian_activation": {
+        "min": 0.03862944303768733,
+        "p10": 0.17402343487439986,
+        "median": 0.4083254625278946,
+        "p90": 0.6619636562345783,
+        "p99": 0.8275278801901883,
+        "max": 0.9334607932432418
+      },
+      "fraction_max_phi_below_1e-8": 0.0,
+      "fraction_max_phi_below_1e-3": 0.0,
+      "max_assignment_probability": {
+        "min": 0.11060731204462089,
+        "p10": 0.16133590787156613,
+        "median": 0.3055911188764754,
+        "p90": 0.5647856285293419,
+        "p99": 0.7258588524209995,
+        "max": 0.801410927029463
+      },
+      "mean_max_assignment_probability": 0.3371456767501967,
+      "mean_top_two_probability_margin": 0.22786279129879083,
+      "mean_entropy_nats": 2.022942402040165,
+      "mean_entropy_normalized_logK": 0.8785527224141532,
+      "fraction_max_q_within_0.001_of_uniform": 0.0,
+      "nonempty_argmax_clusters": 10,
+      "gradient_probe_samples": 128,
+      "loss_components": {
+        "reconstruction": 0.0116380528666068,
+        "clustering": 1.1366048944851082,
+        "soft_silhouette": -0.13660489448510815,
+        "entropy_bits": 2.8681708342761585,
+        "total": 0.05168581015421947
+      },
+      "centers_gradient_norm": 0.000716314076460449,
+      "log_sigmas_gradient_norm": 0.004240626731600371,
+      "clustering_only_encoder_gradient_norm": 0.013620466966910574
+    },
+    "per_cluster_within_rms": {
+      "widths": [
+        3.2231004843164714,
+        2.922731800946961,
+        2.7932620771668506,
+        2.74449584368889,
+        2.3239151955518893,
+        2.690579933286593,
+        3.316736358666008,
+        2.7587282680305294,
+        2.58057431263428,
+        2.900023326598503
+      ],
+      "width_summary": {
+        "min": 2.3239151955518893,
+        "p10": 2.554908400926041,
+        "median": 2.77599517259869,
+        "p90": 3.232464071751425,
+        "p99": 3.3083091299745497,
+        "max": 3.316736358666008
+      },
+      "max_gaussian_activation": {
+        "min": 0.052088697984626786,
+        "p10": 0.19232747652374868,
+        "median": 0.41270358797522855,
+        "p90": 0.6364675351568206,
+        "p99": 0.7817481343919576,
+        "max": 0.9024688177059885
+      },
+      "fraction_max_phi_below_1e-8": 0.0,
+      "fraction_max_phi_below_1e-3": 0.0,
+      "max_assignment_probability": {
+        "min": 0.1118515108857119,
+        "p10": 0.16669717478373502,
+        "median": 0.3067168226697026,
+        "p90": 0.5377094448404854,
+        "p99": 0.6836125881046574,
+        "max": 0.7745946183697252
+      },
+      "mean_max_assignment_probability": 0.33257362599635537,
+      "mean_top_two_probability_margin": 0.21809327554334512,
+      "mean_entropy_nats": 2.0352601361556584,
+      "mean_entropy_normalized_logK": 0.8839022463700633,
+      "fraction_max_q_within_0.001_of_uniform": 0.0,
+      "nonempty_argmax_clusters": 10,
+      "gradient_probe_samples": 128,
+      "loss_components": {
+        "reconstruction": 0.0116380528666068,
+        "clustering": 1.12750908693486,
+        "soft_silhouette": -0.12750908693486007,
+        "entropy_bits": 2.9064653868064823,
+        "total": 0.05197779760402023
+      },
+      "centers_gradient_norm": 0.0008468821639633394,
+      "log_sigmas_gradient_norm": 0.004979973303163455,
+      "clustering_only_encoder_gradient_norm": 0.016703838424310502
+    }
+  },
+  "existing_final_source_checkpoint": {
+    "widths": [
+      0.9210968386889472,
+      0.7766834151455316,
+      0.7552619754526024,
+      0.7678670299488259,
+      1.6117772179336591,
+      0.7498104075062959,
+      0.8395280078028852,
+      0.7336112851522388,
+      0.7423439962353097,
+      0.8087653454088942
+    ],
+    "width_summary": {
+      "min": 0.7336112851522388,
+      "p10": 0.7414707251270026,
+      "median": 0.7722752225471787,
+      "p90": 0.9901648766134181,
+      "p99": 1.5496159838016352,
+      "max": 1.6117772179336591
+    },
+    "max_gaussian_activation": {
+      "min": 1.4772636297414425e-12,
+      "p10": 5.4035714838090936e-08,
+      "median": 4.4744009880887236e-05,
+      "p90": 0.018377939196685955,
+      "p99": 0.6917728360768473,
+      "max": 0.9017568829420343
+    },
+    "fraction_max_phi_below_1e-8": 0.06065664997217585,
+    "fraction_max_phi_below_1e-3": 0.7662771285475793,
+    "max_assignment_probability": {
+      "min": 0.10000000000049869,
+      "p10": 0.10000001919389677,
+      "median": 0.10001610278949676,
+      "p90": 0.10681318661003478,
+      "p99": 0.6387323711978975,
+      "max": 0.8037348625142667
+    },
+    "mean_max_assignment_probability": 0.12209748966818638,
+    "mean_top_two_probability_margin": 0.02454488572262508,
+    "mean_entropy_nats": 2.2759419320577807,
+    "mean_entropy_normalized_logK": 0.9884290222249198,
+    "fraction_max_q_within_0.001_of_uniform": 0.8308291597106289,
+    "nonempty_argmax_clusters": 10
+  }
+}

@@ -1,0 +1,26 @@
+﻿[
+    {
+        "file":  "Autoencoder.py",
+        "sha256":  "24a5f41b3e1ccf1ec53e468206145b06dd9360a79be7edb9d707e57c2ad4720a"
+    },
+    {
+        "file":  "LICENSE",
+        "sha256":  "84ef83cb7b958762a75e52fbd56c88e3e93c7cce82045838df9bc2a07da9ecbc"
+    },
+    {
+        "file":  "Objectives.py",
+        "sha256":  "b6f98f52fe10e89eec5393679efbb65579d57c9f6276a5ed645848f35536c8d4"
+    },
+    {
+        "file":  "RBF.py",
+        "sha256":  "8cabfc28ed35078d6154790d6c675ec5a457c1ac28473602b59522d5081ace26"
+    },
+    {
+        "file":  "README.md",
+        "sha256":  "82d8bbb16baee856fe1c19c3cdc36879fb788a7e43e2a4f122735462abea179b"
+    },
+    {
+        "file":  "requirements.txt",
+        "sha256":  "c80fedcebc6470a0481f36e67e3c6c419835f3c0f0890cb6e21ff0956f18f5bc"
+    }
+]
